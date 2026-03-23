@@ -1,0 +1,1644 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Sistema de Controle de Estoque Escolar</title>
+    <link rel="icon" type="image/png" href="logo.png">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            min-height: 100vh;
+        }
+
+        /* Tela de Login */
+        .login-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+        }
+
+        .login-card {
+            background: white;
+            border-radius: 30px;
+            padding: 40px;
+            max-width: 450px;
+            width: 100%;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
+            animation: fadeInUp 0.6s ease;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .login-logo {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .login-logo img {
+            max-width: 120px;
+            height: auto;
+            margin-bottom: 15px;
+        }
+
+        .login-logo h2 {
+            color: #1e3c72;
+            font-size: 28px;
+            font-weight: 700;
+        }
+
+        .login-logo p {
+            color: #718096;
+            font-size: 14px;
+            margin-top: 8px;
+        }
+
+        .login-form .input-group {
+            margin-bottom: 20px;
+        }
+
+        .login-form .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #2d3748;
+        }
+
+        .login-form .input-group input {
+            width: 100%;
+            padding: 14px 16px;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+
+        .login-form .input-group input:focus {
+            outline: none;
+            border-color: #1e3c72;
+            box-shadow: 0 0 0 3px rgba(30, 60, 114, 0.1);
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #1e3c72, #2a5298);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .login-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(30, 60, 114, 0.4);
+        }
+
+        .login-error {
+            background: #fed7d7;
+            color: #c53030;
+            padding: 12px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            text-align: center;
+            font-size: 14px;
+            display: none;
+        }
+
+        /* Sistema Principal */
+        .system-container {
+            display: none;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            background: white;
+            border-radius: 20px;
+            padding: 20px 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .logo-escola {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .logo-escola img {
+            max-width: 60px;
+            height: auto;
+        }
+
+        .logo-escola h1 {
+            color: #1e3c72;
+            font-size: 24px;
+            font-weight: 700;
+        }
+
+        .logo-escola h1 i {
+            color: #1e3c72;
+            margin-right: 10px;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            background: #f7fafc;
+            padding: 8px 20px;
+            border-radius: 50px;
+        }
+
+        .user-info i {
+            font-size: 20px;
+            color: #1e3c72;
+        }
+
+        .user-info span {
+            font-weight: 600;
+            color: #2d3748;
+        }
+
+        .logout-btn {
+            background: #f56565;
+            color: white;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .logout-btn:hover {
+            background: #e53e3e;
+            transform: translateY(-2px);
+        }
+
+        .tabs {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .tab-btn {
+            padding: 12px 28px;
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            border-radius: 50px;
+            color: white;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            backdrop-filter: blur(10px);
+        }
+
+        .tab-btn.active {
+            background: white;
+            color: #1e3c72;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .tab-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .dashboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .stock-card {
+            background: white;
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stock-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.15);
+        }
+
+        .stock-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 5px;
+            background: linear-gradient(90deg, #1e3c72, #2a5298);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .card-header h3 {
+            font-size: 24px;
+            font-weight: 700;
+            color: #2d3748;
+        }
+
+        .card-header i {
+            font-size: 48px;
+            opacity: 0.3;
+        }
+
+        .total-items {
+            font-size: 36px;
+            font-weight: 800;
+            color: #1e3c72;
+            margin: 15px 0;
+        }
+
+        .items-list {
+            max-height: 300px;
+            overflow-y: auto;
+            margin-top: 15px;
+        }
+
+        .item-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            border-bottom: 1px solid #e2e8f0;
+            font-size: 14px;
+            transition: background 0.2s;
+        }
+
+        .item-row:hover {
+            background: #f7fafc;
+        }
+
+        .item-name {
+            font-weight: 500;
+            flex: 1;
+            word-break: break-word;
+            padding-right: 10px;
+        }
+
+        .item-qty {
+            font-weight: 700;
+            color: #48bb78;
+            background: #f0fff4;
+            padding: 4px 10px;
+            border-radius: 20px;
+            min-width: 100px;
+            text-align: center;
+            font-size: 13px;
+        }
+
+        .form-container {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        .form-container h2 {
+            margin-bottom: 25px;
+            color: #2d3748;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #2d3748;
+        }
+
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 14px;
+            transition: all 0.3s;
+            font-family: inherit;
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+            outline: none;
+            border-color: #1e3c72;
+            box-shadow: 0 0 0 3px rgba(30, 60, 114, 0.1);
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 14px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #1e3c72, #2a5298);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(30, 60, 114, 0.4);
+        }
+
+        .btn-success {
+            background: #48bb78;
+            color: white;
+        }
+
+        .btn-danger {
+            background: #f56565;
+            color: white;
+        }
+
+        .btn-warning {
+            background: #ed8936;
+            color: white;
+        }
+
+        .btn-info {
+            background: #4299e1;
+            color: white;
+        }
+
+        .report-buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(5px);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            max-width: 700px;
+            width: 90%;
+            max-height: 85vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        .modal-header h3 {
+            font-size: 24px;
+            color: #2d3748;
+        }
+
+        .close-modal {
+            font-size: 28px;
+            cursor: pointer;
+            color: #a0aec0;
+            transition: color 0.2s;
+        }
+
+        .close-modal:hover {
+            color: #f56565;
+        }
+
+        .item-detail {
+            background: #f7fafc;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .item-detail:hover {
+            background: #e2e8f0;
+            transform: translateX(5px);
+        }
+
+        .item-detail p {
+            margin: 8px 0;
+            font-size: 16px;
+        }
+
+        .item-detail strong {
+            color: #2d3748;
+        }
+
+        .movement-buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        .movement-form {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        .input-group {
+            margin-bottom: 15px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #2d3748;
+        }
+
+        .input-group input, .input-group select, .input-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 16px;
+            font-family: inherit;
+        }
+
+        .input-group textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .search-box {
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 12px 40px 12px 15px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+
+        .search-box input:focus {
+            outline: none;
+            border-color: #1e3c72;
+            box-shadow: 0 0 0 3px rgba(30, 60, 114, 0.1);
+        }
+
+        .search-box i {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #a0aec0;
+        }
+
+        .catalogo-item {
+            background: #f7fafc;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .catalogo-item-info {
+            flex: 1;
+        }
+
+        .catalogo-item-info p {
+            margin: 5px 0;
+        }
+
+        .catalogo-item-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .add-item-section {
+            background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 25px;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 8px;
+            background: #edf2f7;
+            border-radius: 6px;
+            font-size: 12px;
+            color: #4a5568;
+        }
+
+        .historico-item {
+            background: white;
+            border-left: 4px solid;
+            padding: 12px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .historico-item.adicao {
+            border-left-color: #48bb78;
+        }
+
+        .historico-item.baixa {
+            border-left-color: #f56565;
+        }
+
+        .alert {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            border-radius: 10px;
+            background: white;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            z-index: 1100;
+            animation: slideIn 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #a0aec0;
+        }
+
+        .empty-state i {
+            font-size: 48px;
+            margin-bottom: 15px;
+        }
+
+        hr {
+            margin: 20px 0;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 25px;
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 14px;
+            margin-top: 30px;
+        }
+
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+                margin: 0;
+            }
+            .tabs, .tab-btn, .btn, .close-modal, .header, .report-buttons, .stock-card, .footer, .user-info, .logout-btn {
+                display: none !important;
+            }
+            .print-report {
+                display: block !important;
+                padding: 20px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .dashboard {
+                grid-template-columns: 1fr;
+            }
+            .tab-btn {
+                padding: 8px 20px;
+                font-size: 14px;
+            }
+            .modal-content {
+                padding: 20px;
+            }
+            .header {
+                flex-direction: column;
+                text-align: center;
+            }
+            .header-left {
+                justify-content: center;
+            }
+            .logo-escola h1 {
+                font-size: 18px;
+            }
+            .logo-escola img {
+                max-width: 45px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Tela de Login -->
+    <div id="loginContainer" class="login-container">
+        <div class="login-card">
+            <div class="login-logo">
+                <img src="logo.png" alt="Logo da Escola" id="loginLogo" onerror="this.style.display='none'">
+                <h2><i class="fas fa-school"></i> Estoque Escolar</h2>
+                <p>Sistema de Controle de Estoque</p>
+            </div>
+            <div id="loginError" class="login-error">
+                <i class="fas fa-exclamation-circle"></i> Usuário ou senha incorretos!
+            </div>
+            <form class="login-form" id="loginForm">
+                <div class="input-group">
+                    <label><i class="fas fa-user"></i> Usuário</label>
+                    <input type="text" id="username" placeholder="Digite seu usuário" required>
+                </div>
+                <div class="input-group">
+                    <label><i class="fas fa-lock"></i> Senha</label>
+                    <input type="password" id="password" placeholder="Digite sua senha" required>
+                </div>
+                <button type="submit" class="login-btn">
+                    <i class="fas fa-sign-in-alt"></i> Entrar no Sistema
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Sistema Principal -->
+    <div id="systemContainer" class="system-container">
+        <div class="container">
+            <div class="header">
+                <div class="header-left">
+                    <div class="logo-escola">
+                        <img src="logo.png" alt="Logo da Escola" id="systemLogo" onerror="this.style.display='none'">
+                        <h1><i class="fas fa-school"></i> Sistema de Controle de Estoque Escolar</h1>
+                    </div>
+                </div>
+                <div class="user-info">
+                    <i class="fas fa-user-circle"></i>
+                    <span>Bem-vindo, <strong id="userName">Usuário</strong></span>
+                    <button class="logout-btn" onclick="logout()">
+                        <i class="fas fa-sign-out-alt"></i> Sair
+                    </button>
+                </div>
+            </div>
+
+            <div class="tabs">
+                <button class="tab-btn active" onclick="showTab('dashboard')">
+                    <i class="fas fa-chart-line"></i> Dashboard
+                </button>
+                <button class="tab-btn" onclick="showTab('cadastro')">
+                    <i class="fas fa-plus-circle"></i> Cadastrar Item
+                </button>
+                <button class="tab-btn" onclick="showTab('historico')">
+                    <i class="fas fa-history"></i> Histórico Geral
+                </button>
+                <button class="tab-btn" onclick="showTab('relatorios')">
+                    <i class="fas fa-file-alt"></i> Relatórios
+                </button>
+            </div>
+
+            <div id="dashboardTab" class="tab-content">
+                <div class="dashboard" id="dashboardCards"></div>
+            </div>
+
+            <div id="cadastroTab" class="tab-content" style="display: none;">
+                <div class="form-container">
+                    <h2><i class="fas fa-box-open"></i> Cadastrar Novo Item</h2>
+                    <form id="cadastroForm">
+                        <div class="form-group">
+                            <label><i class="fas fa-tag"></i> Nome/Descrição do Item:</label>
+                            <textarea id="cadastroNome" rows="3" placeholder="Ex: Papel Sulfite A4 75g&#10;Kit de Canetas Esferográficas Pretas&#10;Tinta Acrílica para Tecido - Vermelho" required></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label><i class="fas fa-calculator"></i> Unidade de Medida:</label>
+                            <select id="cadastroUnidade" required>
+                                <option value="CX">CX (Caixa)</option>
+                                <option value="UNID">UNID (Unidade)</option>
+                                <option value="PCTE">PCTE (Pacote)</option>
+                                <option value="FLS">FLS (Folhas)</option>
+                                <option value="ROLO">ROLO (Rolo)</option>
+                                <option value="RESMA">RESMA (Resma)</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i> Cadastrar Item
+                        </button>
+                    </form>
+
+                    <hr>
+
+                    <h2><i class="fas fa-edit"></i> Gerenciar Itens Cadastrados</h2>
+                    <div id="listaItensCadastrados"></div>
+                </div>
+            </div>
+
+            <div id="historicoTab" class="tab-content" style="display: none;">
+                <div class="form-container">
+                    <h2><i class="fas fa-history"></i> Histórico de Movimentações</h2>
+                    <div class="search-box" style="margin-bottom: 20px;">
+                        <i class="fas fa-search"></i>
+                        <input type="text" id="buscarHistorico" placeholder="🔍 Buscar por item, setor, motivo..." onkeyup="filtrarHistorico()">
+                    </div>
+                    <div id="listaHistorico"></div>
+                </div>
+            </div>
+
+            <div id="relatoriosTab" class="tab-content" style="display: none;">
+                <div class="form-container">
+                    <h2><i class="fas fa-chart-bar"></i> Gerar Relatórios para Impressão</h2>
+                    <div class="report-buttons">
+                        <button onclick="gerarRelatorio('almoxarifado')" class="btn btn-primary">
+                            <i class="fas fa-box"></i> Imprimir Almoxarifado
+                        </button>
+                        <button onclick="gerarRelatorio('secretaria')" class="btn btn-primary">
+                            <i class="fas fa-building"></i> Imprimir Secretaria
+                        </button>
+                        <button onclick="gerarRelatorio('atelie')" class="btn btn-primary">
+                            <i class="fas fa-palette"></i> Imprimir Ateliê
+                        </button>
+                        <button onclick="gerarRelatorio('geral')" class="btn btn-success">
+                            <i class="fas fa-chart-bar"></i> Imprimir Relatório Geral
+                        </button>
+                        <button onclick="gerarRelatorioHistorico()" class="btn btn-info">
+                            <i class="fas fa-history"></i> Imprimir Histórico Completo
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="footer">
+                <p>© 2026 Desenvolvido por João Lino • Todos os direitos reservados</p>
+            </div>
+        </div>
+    </div>
+
+    <div id="movementModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modalTitle">Gerenciar Estoque</h3>
+                <span class="close-modal" onclick="fecharModal()">&times;</span>
+            </div>
+            <div id="modalBody"></div>
+        </div>
+    </div>
+
+    <div id="editModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Editar Item</h3>
+                <span class="close-modal" onclick="fecharEditModal()">&times;</span>
+            </div>
+            <div id="editModalBody"></div>
+        </div>
+    </div>
+
+    <script>
+        // ==================== CONFIGURAÇÃO DO SUPABASE ====================
+        const SUPABASE_URL = 'https://ulechrokpkrapygxxsyq.supabase.co';
+        const SUPABASE_KEY = 'sb_publishable_KrNTNSmkyriR8gAfG5HSdw_VPL85bEc';
+        const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        // Credenciais de login
+        const VALID_USERNAME = 'sabbag';
+        const VALID_PASSWORD = '337';
+
+        // ==================== VARIÁVEIS GLOBAIS ====================
+        let catalogoItens = [];
+        let estoque = {
+            almoxarifado: [],
+            secretaria: [],
+            atelie: []
+        };
+        let historico = [];
+        let currentItemContext = null;
+        let currentEditItem = null;
+        let currentSetor = null;
+
+        // ==================== FUNÇÕES DE LOGIN ====================
+        function login(event) {
+            event.preventDefault();
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const errorDiv = document.getElementById('loginError');
+
+            if (username === VALID_USERNAME && password === VALID_PASSWORD) {
+                // Login bem sucedido
+                localStorage.setItem('loggedIn', 'true');
+                localStorage.setItem('username', username);
+                showSystem();
+            } else {
+                // Login falhou
+                errorDiv.style.display = 'block';
+                setTimeout(() => {
+                    errorDiv.style.display = 'none';
+                }, 3000);
+            }
+        }
+
+        function showSystem() {
+            document.getElementById('loginContainer').style.display = 'none';
+            document.getElementById('systemContainer').style.display = 'block';
+            document.getElementById('userName').textContent = localStorage.getItem('username') || 'Usuário';
+            carregarDados();
+        }
+
+        function logout() {
+            localStorage.removeItem('loggedIn');
+            localStorage.removeItem('username');
+            document.getElementById('loginContainer').style.display = 'flex';
+            document.getElementById('systemContainer').style.display = 'none';
+        }
+
+        function checkLogin() {
+            const loggedIn = localStorage.getItem('loggedIn');
+            if (loggedIn === 'true') {
+                showSystem();
+            } else {
+                document.getElementById('loginContainer').style.display = 'flex';
+                document.getElementById('systemContainer').style.display = 'none';
+            }
+        }
+
+        // ==================== FUNÇÕES AUXILIARES ====================
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function mostrarAlerta(mensagem, tipo) {
+            const alertDiv = document.createElement('div');
+            alertDiv.className = 'alert';
+            alertDiv.style.background = tipo === 'success' ? '#48bb78' : '#f56565';
+            alertDiv.style.color = 'white';
+            alertDiv.innerHTML = `<i class="fas ${tipo === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}"></i> ${mensagem}`;
+            document.body.appendChild(alertDiv);
+            setTimeout(() => alertDiv.remove(), 3000);
+        }
+
+        // ==================== FUNÇÕES DE BANCO DE DADOS ====================
+        async function carregarDados() {
+            try {
+                const { data: catalogo, error: catalogoError } = await supabaseClient
+                    .from('catalogo_itens')
+                    .select('*')
+                    .order('id', { ascending: true });
+                
+                if (catalogoError) throw catalogoError;
+                catalogoItens = catalogo || [];
+                
+                const { data: estoqueData, error: estoqueError } = await supabaseClient
+                    .from('estoque')
+                    .select(`*, catalogo_itens (nome, unidade)`);
+                
+                if (estoqueError) throw estoqueError;
+                
+                estoque = { almoxarifado: [], secretaria: [], atelie: [] };
+                
+                if (estoqueData) {
+                    estoqueData.forEach(item => {
+                        estoque[item.setor].push({
+                            id: item.catalogo_item_id,
+                            nome: item.catalogo_itens.nome,
+                            unidade: item.catalogo_itens.unidade,
+                            quantidade: item.quantidade
+                        });
+                    });
+                }
+                
+                const { data: historicoData, error: historicoError } = await supabaseClient
+                    .from('historico')
+                    .select('*')
+                    .order('created_at', { ascending: false })
+                    .limit(100);
+                
+                if (historicoError) throw historicoError;
+                historico = historicoData || [];
+                
+                atualizarDashboard();
+                atualizarListaItens();
+                atualizarHistorico();
+                
+            } catch (error) {
+                console.error('Erro:', error);
+                mostrarAlerta('Erro ao carregar dados!', 'error');
+            }
+        }
+
+        async function registrarHistorico(tipo, setor, itemNome, quantidade, unidade, motivo = null) {
+            try {
+                const { data, error } = await supabaseClient
+                    .from('historico')
+                    .insert([{ tipo, setor, item_nome: itemNome, quantidade, unidade, motivo }])
+                    .select();
+                
+                if (error) throw error;
+                if (data && data[0]) {
+                    historico.unshift(data[0]);
+                    atualizarHistorico();
+                }
+            } catch (error) {
+                console.error('Erro ao registrar histórico:', error);
+            }
+        }
+
+        async function atualizarEstoque(setor, catalogoItemId, quantidade) {
+            try {
+                const { data: existing } = await supabaseClient
+                    .from('estoque')
+                    .select('*')
+                    .eq('setor', setor)
+                    .eq('catalogo_item_id', catalogoItemId)
+                    .single();
+                
+                if (existing) {
+                    const { error } = await supabaseClient
+                        .from('estoque')
+                        .update({ quantidade })
+                        .eq('id', existing.id);
+                    if (error) throw error;
+                } else {
+                    const { error } = await supabaseClient
+                        .from('estoque')
+                        .insert([{ setor, catalogo_item_id: catalogoItemId, quantidade }]);
+                    if (error) throw error;
+                }
+            } catch (error) {
+                console.error('Erro ao atualizar estoque:', error);
+                throw error;
+            }
+        }
+
+        // ==================== FUNÇÕES DE INTERFACE ====================
+        function atualizarDashboard() {
+            const dashboardDiv = document.getElementById('dashboardCards');
+            const setores = [
+                { nome: 'Almoxarifado', chave: 'almoxarifado', icone: 'fa-boxes', cor: '#1e3c72' },
+                { nome: 'Secretaria', chave: 'secretaria', icone: 'fa-building', cor: '#48bb78' },
+                { nome: 'Ateliê', chave: 'atelie', icone: 'fa-palette', cor: '#ed8936' }
+            ];
+
+            dashboardDiv.innerHTML = setores.map(setor => {
+                const items = estoque[setor.chave];
+                const totalItems = items.reduce((sum, item) => sum + item.quantidade, 0);
+                const qtdTipos = items.length;
+
+                return `
+                    <div class="stock-card" onclick="abrirModalSetor('${setor.chave}', '${setor.nome}')">
+                        <div class="card-header">
+                            <h3>${setor.nome}</h3>
+                            <i class="fas ${setor.icone}" style="color: ${setor.cor}"></i>
+                        </div>
+                        <div class="total-items">${totalItems} ${totalItems === 1 ? 'item' : 'itens'}</div>
+                        <div style="color: #718096; margin-bottom: 10px;">
+                            <i class="fas fa-tag"></i> ${qtdTipos} ${qtdTipos === 1 ? 'tipo cadastrado' : 'tipos cadastrados'}
+                        </div>
+                        <div class="items-list">
+                            ${items.length === 0 ? 
+                                '<div class="empty-state"><i class="fas fa-inbox"></i><p>Nenhum item no estoque</p><small>Clique para adicionar itens</small></div>' :
+                                items.map(item => `
+                                    <div class="item-row" onclick="event.stopPropagation(); abrirModalMovimentacao('${setor.chave}', ${item.id})">
+                                        <span class="item-name">${escapeHtml(item.nome)}</span>
+                                        <span class="item-qty">${item.quantidade} ${item.unidade}</span>
+                                    </div>
+                                `).join('')
+                            }
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function atualizarListaItens() {
+            const container = document.getElementById('listaItensCadastrados');
+            if (!container) return;
+            
+            if (catalogoItens.length === 0) {
+                container.innerHTML = '<div class="empty-state"><i class="fas fa-database"></i><p>Nenhum item cadastrado</p><small>Cadastre seu primeiro item acima</small></div>';
+                return;
+            }
+
+            container.innerHTML = catalogoItens.map(item => `
+                <div class="catalogo-item">
+                    <div class="catalogo-item-info">
+                        <p><strong>${escapeHtml(item.nome)}</strong></p>
+                        <p style="color: #1e3c72; font-size: 14px;">Unidade: ${item.unidade}</p>
+                    </div>
+                    <div class="catalogo-item-actions">
+                        <button onclick="editarItem(${item.id})" class="btn btn-primary" style="padding: 8px 16px;">
+                            <i class="fas fa-edit"></i> Editar
+                        </button>
+                        <button onclick="excluirItem(${item.id})" class="btn btn-danger" style="padding: 8px 16px;">
+                            <i class="fas fa-trash"></i> Excluir
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function atualizarHistorico() {
+            const container = document.getElementById('listaHistorico');
+            if (!container) return;
+
+            if (historico.length === 0) {
+                container.innerHTML = '<div class="empty-state"><i class="fas fa-history"></i><p>Nenhuma movimentação registrada</p><small>As movimentações aparecerão aqui</small></div>';
+                return;
+            }
+
+            container.innerHTML = historico.map(reg => {
+                const dataFormatada = new Date(reg.created_at).toLocaleString('pt-BR');
+                return `
+                    <div class="historico-item ${reg.tipo === 'adicao' ? 'adicao' : 'baixa'}">
+                        <div style="display: flex; justify-content: space-between; align-items: start; flex-wrap: wrap;">
+                            <div>
+                                <strong>${reg.tipo === 'adicao' ? '➕ ADIÇÃO' : '➖ BAIXA'}</strong>
+                                <span style="color: #718096; font-size: 12px; margin-left: 10px;">${dataFormatada}</span>
+                            </div>
+                            <span class="badge">${reg.setor === 'almoxarifado' ? 'Almoxarifado' : reg.setor === 'secretaria' ? 'Secretaria' : 'Ateliê'}</span>
+                        </div>
+                        <p style="margin-top: 10px;"><strong>Item:</strong> ${escapeHtml(reg.item_nome)}</p>
+                        <p><strong>Quantidade:</strong> ${reg.quantidade} ${reg.unidade}</p>
+                        ${reg.motivo ? `<p><strong>Motivo:</strong> ${escapeHtml(reg.motivo)}</p>` : ''}
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function filtrarHistorico() {
+            const termo = document.getElementById('buscarHistorico').value.toLowerCase();
+            const container = document.getElementById('listaHistorico');
+            if (!container) return;
+            
+            const historicoFiltrado = historico.filter(reg => 
+                reg.item_nome.toLowerCase().includes(termo) ||
+                reg.setor.toLowerCase().includes(termo) ||
+                (reg.motivo && reg.motivo.toLowerCase().includes(termo))
+            );
+            
+            if (historicoFiltrado.length === 0) {
+                container.innerHTML = '<div class="empty-state"><i class="fas fa-search"></i><p>Nenhum registro encontrado</p><small>Tente outro termo de busca</small></div>';
+                return;
+            }
+            
+            container.innerHTML = historicoFiltrado.map(reg => {
+                const dataFormatada = new Date(reg.created_at).toLocaleString('pt-BR');
+                return `
+                    <div class="historico-item ${reg.tipo === 'adicao' ? 'adicao' : 'baixa'}">
+                        <div style="display: flex; justify-content: space-between; align-items: start; flex-wrap: wrap;">
+                            <div>
+                                <strong>${reg.tipo === 'adicao' ? '➕ ADIÇÃO' : '➖ BAIXA'}</strong>
+                                <span style="color: #718096; font-size: 12px; margin-left: 10px;">${dataFormatada}</span>
+                            </div>
+                            <span class="badge">${reg.setor === 'almoxarifado' ? 'Almoxarifado' : reg.setor === 'secretaria' ? 'Secretaria' : 'Ateliê'}</span>
+                        </div>
+                        <p style="margin-top: 10px;"><strong>Item:</strong> ${escapeHtml(reg.item_nome)}</p>
+                        <p><strong>Quantidade:</strong> ${reg.quantidade} ${reg.unidade}</p>
+                        ${reg.motivo ? `<p><strong>Motivo:</strong> ${escapeHtml(reg.motivo)}</p>` : ''}
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // ==================== FUNÇÕES DE MODAL E MOVIMENTAÇÃO ====================
+        function abrirModalSetor(setor, nomeSetor) {
+            currentSetor = setor;
+            const modalBody = document.getElementById('modalBody');
+            
+            document.getElementById('modalTitle').innerHTML = `<i class="fas fa-${setor === 'almoxarifado' ? 'boxes' : setor === 'secretaria' ? 'building' : 'palette'}"></i> ${nomeSetor} - Gerenciar Estoque`;
+            
+            const itensNoSetor = estoque[setor].map(item => item.id);
+            const itensDisponiveis = catalogoItens.filter(item => !itensNoSetor.includes(item.id));
+            
+            modalBody.innerHTML = `
+                <div class="add-item-section">
+                    <h4 style="margin-bottom: 15px;"><i class="fas fa-plus-circle"></i> Adicionar Item ao Estoque</h4>
+                    <div class="input-group">
+                        <label>Selecione um item do catálogo:</label>
+                        <select id="selectItemAdicionar" style="width: 100%; padding: 10px; border: 2px solid #e2e8f0; border-radius: 8px;">
+                            <option value="">-- Selecione um item --</option>
+                            ${itensDisponiveis.map(item => `<option value="${item.id}">${escapeHtml(item.nome)} (${item.unidade})</option>`).join('')}
+                        </select>
+                    </div>
+                    <div class="input-group">
+                        <label>Quantidade:</label>
+                        <input type="number" id="quantidadeAdicionar" min="1" value="1">
+                    </div>
+                    <button onclick="adicionarItemAoSetor()" class="btn btn-primary" style="width: 100%;">
+                        <i class="fas fa-plus"></i> Adicionar ao Estoque
+                    </button>
+                </div>
+                <hr>
+                <div class="search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="buscarItem" placeholder="🔍 Buscar item no estoque..." onkeyup="filtrarItensSetor()">
+                </div>
+                <div style="margin-bottom: 15px;">
+                    <span class="badge"><i class="fas fa-boxes"></i> Itens no estoque: ${estoque[setor].length}</span>
+                    <span class="badge" style="margin-left: 10px;"><i class="fas fa-chart-line"></i> Total unidades: ${estoque[setor].reduce((sum, i) => sum + i.quantidade, 0)}</span>
+                </div>
+                <div id="listaItensSetor" style="max-height: 400px; overflow-y: auto;">
+                    ${estoque[setor].length === 0 ? 
+                        '<div class="empty-state"><i class="fas fa-inbox"></i><p>Nenhum item no estoque</p><small>Adicione itens usando o formulário acima</small></div>' :
+                        estoque[setor].map(item => `
+                            <div class="item-detail" onclick="abrirModalMovimentacao('${setor}', ${item.id})">
+                                <p><strong>${escapeHtml(item.nome)}</strong></p>
+                                <p style="color: #48bb78; font-size: 20px; font-weight: bold;">${item.quantidade} ${item.unidade}</p>
+                                <small style="color: #718096;">Clique para movimentar</small>
+                            </div>
+                        `).join('')
+                    }
+                </div>
+            `;
+            
+            document.getElementById('movementModal').style.display = 'flex';
+        }
+
+        async function adicionarItemAoSetor() {
+            const itemId = parseInt(document.getElementById('selectItemAdicionar').value);
+            const quantidade = parseInt(document.getElementById('quantidadeAdicionar').value);
+            
+            if (!itemId) {
+                mostrarAlerta('Por favor, selecione um item!', 'error');
+                return;
+            }
+            
+            if (!quantidade || quantidade <= 0) {
+                mostrarAlerta('Por favor, informe uma quantidade válida!', 'error');
+                return;
+            }
+            
+            const itemCatalogo = catalogoItens.find(i => i.id === itemId);
+            if (!itemCatalogo) return;
+            
+            const itemExistente = estoque[currentSetor].find(i => i.id === itemId);
+            if (itemExistente) {
+                mostrarAlerta('Este item já existe neste setor! Use a movimentação para adicionar mais unidades.', 'error');
+                return;
+            }
+            
+            try {
+                await atualizarEstoque(currentSetor, itemId, quantidade);
+                
+                estoque[currentSetor].push({
+                    id: itemCatalogo.id,
+                    nome: itemCatalogo.nome,
+                    unidade: itemCatalogo.unidade,
+                    quantidade: quantidade
+                });
+                
+                await registrarHistorico('adicao', currentSetor, itemCatalogo.nome, quantidade, itemCatalogo.unidade, 'Adição inicial ao estoque');
+                
+                atualizarDashboard();
+                abrirModalSetor(currentSetor, currentSetor === 'almoxarifado' ? 'Almoxarifado' : currentSetor === 'secretaria' ? 'Secretaria' : 'Ateliê');
+                mostrarAlerta(`✅ ${quantidade} ${itemCatalogo.unidade} de "${itemCatalogo.nome.substring(0, 50)}" adicionado ao estoque!`, 'success');
+            } catch (error) {
+                mostrarAlerta('Erro ao adicionar item ao estoque!', 'error');
+            }
+        }
+
+        function filtrarItensSetor() {
+            const termo = document.getElementById('buscarItem').value.toLowerCase();
+            const items = estoque[currentSetor];
+            const container = document.getElementById('listaItensSetor');
+            if (!container) return;
+            
+            const itemsFiltrados = items.filter(item => item.nome.toLowerCase().includes(termo));
+            
+            if (itemsFiltrados.length === 0) {
+                container.innerHTML = '<div class="empty-state"><i class="fas fa-search"></i><p>Nenhum item encontrado</p><small>Tente outro termo de busca</small></div>';
+                return;
+            }
+            
+            container.innerHTML = itemsFiltrados.map(item => `
+                <div class="item-detail" onclick="abrirModalMovimentacao('${currentSetor}', ${item.id})">
+                    <p><strong>${escapeHtml(item.nome)}</strong></p>
+                    <p style="color: #48bb78; font-size: 20px; font-weight: bold;">${item.quantidade} ${item.unidade}</p>
+                    <small style="color: #718096;">Clique para movimentar</small>
+                </div>
+            `).join('');
+        }
+
+        function abrirModalMovimentacao(setor, itemId) {
+            const item = estoque[setor].find(i => i.id === itemId);
+            if (!item) return;
+            
+            currentItemContext = { setor, itemId };
+            const modalBody = document.getElementById('modalBody');
+            
+            document.getElementById('modalTitle').innerHTML = `<i class="fas fa-exchange-alt"></i> Movimentar Item`;
+            
+            modalBody.innerHTML = `
+                <div class="item-detail" style="cursor: default;">
+                    <p><strong><i class="fas fa-tag"></i> Item:</strong></p>
+                    <p style="font-size: 16px; margin-top: 5px;">${escapeHtml(item.nome)}</p>
+                    <p style="margin-top: 15px;"><strong><i class="fas fa-chart-line"></i> Quantidade Atual:</strong></p>
+                    <p style="font-size: 28px; font-weight: bold; color: #1e3c72;">${item.quantidade} ${item.unidade}</p>
+                </div>
+                <div class="movement-form">
+                    <h4 style="margin-bottom: 15px;"><i class="fas fa-arrow-right"></i> Realizar Movimentação</h4>
+                    <div class="input-group">
+                        <label>Tipo de Movimentação:</label>
+                        <select id="tipoMovimentacao" style="width: 100%; padding: 10px; border: 2px solid #e2e8f0; border-radius: 8px;">
+                            <option value="adicionar">➕ Adicionar ao Estoque</option>
+                            <option value="baixa">➖ Dar Baixa (Retirar do Estoque)</option>
+                        </select>
+                    </div>
+                    <div class="input-group">
+                        <label>Quantidade:</label>
+                        <input type="number" id="quantidadeMovimentacao" min="1" step="1" placeholder="Digite a quantidade">
+                    </div>
+                    <div class="input-group" id="motivoGroup" style="display: none;">
+                        <label>Motivo/Justificativa:</label>
+                        <textarea id="motivoMovimentacao" rows="3" placeholder="Ex: Utilizado em sala de aula, Distribuído para professores, Consumo interno..."></textarea>
+                    </div>
+                    <div class="movement-buttons">
+                        <button onclick="realizarMovimentacao()" class="btn btn-primary">Confirmar Movimentação</button>
+                        <button onclick="fecharModal()" class="btn btn-warning">Cancelar</button>
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('tipoMovimentacao').addEventListener('change', function() {
+                const motivoGroup = document.getElementById('motivoGroup');
+                motivoGroup.style.display = this.value === 'baixa' ? 'block' : 'none';
+            });
+            
+            document.getElementById('movementModal').style.display = 'flex';
+        }
+
+        async function realizarMovimentacao() {
+            if (!currentItemContext) return;
+            
+            const tipo = document.getElementById('tipoMovimentacao').value;
+            const quantidade = parseInt(document.getElementById('quantidadeMovimentacao').value);
+            const motivo = tipo === 'baixa' ? document.getElementById('motivoMovimentacao').value.trim() : null;
+            
+            if (!quantidade || quantidade <= 0) {
+                mostrarAlerta('Por favor, informe uma quantidade válida!', 'error');
+                return;
+            }
+            
+            if (tipo === 'baixa' && (!motivo || motivo === '')) {
+                mostrarAlerta('Por favor, informe o motivo da baixa!', 'error');
+                return;
+            }
+            
+            const item = estoque[currentItemContext.setor].find(i => i.id === currentItemContext.itemId);
+            
+            if (tipo === 'adicionar') {
+                const novaQuantidade = item.quantidade + quantidade;
+                try {
+                    await atualizarEstoque(currentItemContext.setor, item.id, novaQuantidade);
+                    item.quantidade = novaQuantidade;
+                    await registrarHistorico('adicao', currentItemContext.setor, item.nome, quantidade, item.unidade, 'Adição ao estoque');
+                    atualizarDashboard();
+                    mostrarAlerta(`✅ Adicionado ${quantidade} ${item.unidade} ao item "${item.nome.substring(0, 50)}"`, 'success');
+                    fecharModal();
+                } catch (error) {
+                    mostrarAlerta('Erro ao realizar movimentação!', 'error');
+                }
+            } else {
+                if (item.quantidade < quantidade) {
+                    mostrarAlerta(`❌ Quantidade insuficiente! Disponível: ${item.quantidade} ${item.unidade}`, 'error');
+                    return;
+                }
+                const novaQuantidade = item.quantidade - quantidade;
+                try {
+                    await atualizarEstoque(currentItemContext.setor, item.id, novaQuantidade);
+                    item.quantidade = novaQuantidade;
+                    await registrarHistorico('baixa', currentItemContext.setor, item.nome, quantidade, item.unidade, motivo);
+                    atualizarDashboard();
+                    mostrarAlerta(`📦 Dada baixa em ${quantidade} ${item.unidade} do item "${item.nome.substring(0, 50)}"`, 'success');
+                    fecharModal();
+                } catch (error) {
+                    mostrarAlerta('Erro ao realizar movimentação!', 'error');
+                }
+            }
+        }
+
+        async function editarItem(itemId) {
+            const item = catalogoItens.find(i => i.id === itemId);
+            if (!item) return;
+            
+            currentEditItem = item;
+            const modalBody = document.getElementById('editModalBody');
+            
+            modalBody.innerHTML = `
+                <form id="editForm">
+                    <div class="form-group">
+                        <label>Nome/Descrição do Item:</label>
+                        <textarea id="editNome" rows="3" required>${escapeHtml(item.nome)}</textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Unidade de Medida:</label>
+                        <select id="editUnidade" required>
+                            <option value="CX" ${item.unidade === 'CX' ? 'selected' : ''}>CX (Caixa)</option>
+                            <option value="UNID" ${item.unidade === 'UNID' ? 'selected' : ''}>UNID (Unidade)</option>
+                            <option value="PCTE" ${item.unidade === 'PCTE' ? 'selected' : ''}>PCTE (Pacote)</option>
+                            <option value="FLS" ${item.unidade === 'FLS' ? 'selected' : ''}>FLS (Folhas)</option>
+                            <option value="ROLO" ${item.unidade === 'ROLO' ? 'selected' : ''}>ROLO (Rolo)</option>
+                            <option value="RESMA" ${item.unidade === 'RESMA' ? 'selected' : ''}>RESMA (Resma)</option>
+                        </select>
+                    </div>
+                    <div class="movement-buttons">
+                        <button type="submit" class="btn btn-primary">Salvar Alterações</button>
+                        <button type="button" onclick="fecharEditModal()" class="btn btn-warning">Cancelar</button>
+                    </div>
+                </form>
+            `;
+            
+            document.getElementById('editModal').style.display = 'flex';
+            
+            document.getElementById('editForm').addEventListener('submit', async function(e) {
+                e.preventDefault();
+                const novoNome = document.getElementById('editNome').value.trim();
+                const novaUnidade = document.getElementById('editUnidade').value;
+                
+                if (!novoNome) {
+                    mostrarAlerta('Por favor, informe o nome do item!', 'error');
+                    return;
+                }
+                
+                try {
+                    const { error } = await supabaseClient
+                        .from('catalogo_itens')
+                        .update({ nome: novoNome, unidade: novaUnidade })
+                        .eq('id', itemId);
+                    
+                    if (error) throw error;
+                    
+                    item.nome = novoNome;
+                    item.unidade = novaUnidade;
+                    
+                    for (const setor of Object.keys(estoque)) {
+                        const itemEstoque = estoque[setor].find(i => i.id === item.id);
+                        if (itemEstoque) {
+                            itemEstoque.nome = novoNome;
+                            itemEstoque.unidade = novaUnidade;
+                        }
+                    }
+                    
+                    atualizarDashboard();
+                    atualizarListaItens();
+                    mostrarAlerta('✅ Item atualizado com sucesso!', 'success');
+                    fecharEditModal();
+                } catch (error) {
+                    mostrarAlerta('Erro ao atualizar item!', 'error');
+                }
+            });
+        }
+
+        async function excluirItem(itemId) {
+            if (confirm('⚠️ Tem certeza que deseja excluir este item?\n\nIsso removerá o item de TODOS os setores do estoque!')) {
+                try {
+                    const { error } = await supabaseClient
+                        .from('catalogo_itens')
+                        .delete()
+                        .eq('id', itemId);
+                    
+                    if (error) throw error;
+                    
+                    catalogoItens = catalogoItens.filter(i => i.id !== itemId);
+                    
+                    for (const setor of Object.keys(estoque)) {
+                        estoque[setor] = estoque[setor].filter(i => i.id !== itemId);
+                    }
+                    
+                    atualizarDashboard();
+                    atualizarListaItens();
+                    mostrarAlerta('🗑️ Item excluído com sucesso!', 'success');
+                } catch (error) {
+                    mostrarAlerta('Erro ao excluir item!', 'error');
+                }
+            }
+        }
+
+        async function cadastrarItem(e) {
+            e.preventDefault();
+            const nome = document.getElementById('cadastroNome').value.trim();
+            const unidade = document.getElementById('cadastroUnidade').value;
+
+            if (!nome) {
+                mostrarAlerta('Por favor, descreva o item!', 'error');
+                return;
+            }
+
+            try {
+                const { data, error } = await supabaseClient
+                    .from('catalogo_itens')
+                    .insert([{ nome, unidade }])
+                    .select();
+                
+                if (error) throw error;
+                
+                if (data && data[0]) {
+                    catalogoItens.push(data[0]);
+                }
+                
+                atualizarListaItens();
+                document.getElementById('cadastroForm').reset();
+                mostrarAlerta(`✅ Item "${nome.substring(0, 50)}" cadastrado com sucesso!`, 'success');
+            } catch (error) {
+                mostrarAlerta('Erro ao cadastrar item!', 'error');
+            }
+        }
+
+        function gerarRelatorio(tipo) {
+            const dataAtual = new Date().toLocaleString('pt-BR');
+            let htmlContent = `
+                <div class="print-report" style="padding: 40px; max-width: 1200px; margin: 0 auto;">
+                    <div style="text-align: center; margin-bottom: 30px;">
+                        <img src="logo.png" alt="Logo" style="max-width: 80px; margin-bottom: 10px;" onerror="this.style.display='none'">
+                        <h1 style="color: #1e3c72;">Sistema de Controle de Estoque Escolar</h1>
+                        <h2 style="color: #2a5298;">RELATÓRIO DE ESTOQUE</h2>
+                        <p>Data de emissão: ${dataAtual}</p>
+                    </div>
+            `;
+            
+            if (tipo === 'geral') {
+                for (const [setor, items] of Object.entries(estoque)) {
+                    const nomeSetor = setor === 'almoxarifado' ? 'ALMOXARIFADO' : setor === 'secretaria' ? 'SECRETARIA' : 'ATELIÊ';
+                    htmlContent += `
+                        <div style="margin-bottom: 30px;">
+                            <h3>📦 ${nomeSetor}</h3>
+                            <table style="width: 100%; border-collapse: collapse;">
+                                <thead><tr style="background: #1e3c72; color: white;"><th>Item</th><th>Qtd</th><th>Unid</th> </tr></thead>
+                                <tbody>${items.map(item => `<tr><td style="padding: 8px; border: 1px solid #ddd;">${escapeHtml(item.nome)}</td><td style="text-align:center">${item.quantidade}</td><td style="text-align:center">${item.unidade}</td></tr>`).join('')}</tbody>
+                            </table>
+                        </div>
+                    `;
+                }
+            } else {
+                const items = estoque[tipo];
+                const nomeSetor = tipo === 'almoxarifado' ? 'ALMOXARIFADO' : tipo === 'secretaria' ? 'SECRETARIA' : 'ATELIÊ';
+                htmlContent += `
+                    <h3>📦 ${nomeSetor}</h3>
+                    <table style="width: 100%; border-collapse: collapse;">
+                        <thead><tr style="background: #1e3c72; color: white;"><th>Item</th><th>Qtd</th><th>Unid</th> </tr></thead>
+                        <tbody>${items.map(item => `<tr><td style="padding: 8px; border: 1px solid #ddd;">${escapeHtml(item.nome)}</td><td style="text-align:center">${item.quantidade}</td><td style="text-align:center">${item.unidade}</td></tr>`).join('')}</tbody>
+                    </table>
+                `;
+            }
+            
+            htmlContent += `<div style="margin-top: 40px; text-align: center; color: #718096;">© 2026 Desenvolvido por João Lino • Todos os direitos reservados</div></div>`;
+            const printWindow = window.open('', '_blank');
+            printWindow.document.write(`<!DOCTYPE html><html><head><title>Relatório</title><style>body{font-family:Inter,sans-serif;padding:20px}</style></head><body>${htmlContent}<script>setTimeout(()=>window.print(),500);<\/script></body></html>`);
+            printWindow.document.close();
+        }
+
+        function gerarRelatorioHistorico() {
+            const dataAtual = new Date().toLocaleString('pt-BR');
+            let htmlContent = `
+                <div class="print-report" style="padding: 40px;">
+                    <div style="text-align:center">
+                        <img src="logo.png" alt="Logo" style="max-width: 80px; margin-bottom: 10px;" onerror="this.style.display='none'">
+                        <h1 style="color: #1e3c72;">Histórico de Movimentações</h1>
+                        <p>${dataAtual}</p>
+                    </div>
+                    <table style="width:100%;border-collapse:collapse; margin-top:20px">
+                        <thead><tr style="background:#1e3c72;color:white"><th>Data</th><th>Tipo</th><th>Setor</th><th>Item</th><th>Qtd</th><th>Motivo</th></tr></thead>
+                        <tbody>${historico.map(reg => `<tr><td style="padding:8px;border:1px solid #ddd;">${new Date(reg.created_at).toLocaleString('pt-BR')}</td><td>${reg.tipo === 'adicao' ? 'ADIÇÃO' : 'BAIXA'}</td><td>${reg.setor}</td><td>${escapeHtml(reg.item_nome)}</td><td style="text-align:center">${reg.quantidade} ${reg.unidade}</td><td>${reg.motivo || '-'}</td></tr>`).join('')}</tbody>
+                    </table>
+                    <div style="margin-top: 40px; text-align: center; color: #718096;">© 2026 Desenvolvido por João Lino • Todos os direitos reservados</div>
+                </div>
+            `;
+            const printWindow = window.open('', '_blank');
+            printWindow.document.write(`<!DOCTYPE html><html><head><title>Histórico</title><style>body{font-family:Inter,sans-serif;padding:20px}</style></head><body>${htmlContent}<script>setTimeout(()=>window.print(),500);<\/script></body></html>`);
+            printWindow.document.close();
+        }
+
+        function fecharModal() {
+            document.getElementById('movementModal').style.display = 'none';
+            currentItemContext = null;
+            currentSetor = null;
+        }
+
+        function fecharEditModal() {
+            document.getElementById('editModal').style.display = 'none';
+            currentEditItem = null;
+        }
+
+        function showTab(tab) {
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.style.display = 'none';
+            });
+            document.getElementById(`${tab}Tab`).style.display = 'block';
+            
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            const buttons = document.querySelectorAll('.tab-btn');
+            buttons.forEach(btn => {
+                if (btn.textContent.toLowerCase().includes(tab.toLowerCase())) {
+                    btn.classList.add('active');
+                }
+            });
+            
+            if (tab === 'cadastro') atualizarListaItens();
+            if (tab === 'historico') atualizarHistorico();
+        }
+
+        // Event Listeners
+        document.getElementById('loginForm').addEventListener('submit', login);
+        document.getElementById('cadastroForm').addEventListener('submit', cadastrarItem);
+        
+        window.onclick = function(event) {
+            if (event.target === document.getElementById('movementModal')) fecharModal();
+            if (event.target === document.getElementById('editModal')) fecharEditModal();
+        };
+
+        // Inicializar - verificar login
+        checkLogin();
+    </script>
+</body>
+</html>
