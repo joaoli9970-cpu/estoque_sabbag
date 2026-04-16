@@ -2,12 +2,14 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Sistema de Controle de Estoque Escolar</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
+    <meta name="theme-color" content="#0f172a">
+    <title>Sistema de Controle de Estoque Escolar - EMEF José Sabbag</title>
     <link rel="icon" type="image/png" href="logo.png">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <style>
         * {
             margin: 0;
@@ -17,60 +19,90 @@
 
         body {
             font-family: 'Inter', sans-serif;
-            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            background: #0f172a;
             min-height: 100vh;
+            overflow-x: hidden;
         }
 
-        /* Tela de Login */
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideInRight {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #1e293b;
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #3b82f6;
+            border-radius: 10px;
+        }
+
         .login-container {
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
             padding: 20px;
-            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
+            position: relative;
         }
 
         .login-card {
-            background: white;
-            border-radius: 30px;
-            padding: 40px;
+            background: rgba(255,255,255,0.05);
+            backdrop-filter: blur(20px);
+            border-radius: 40px;
+            padding: 40px 32px;
             max-width: 450px;
             width: 100%;
-            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
+            border: 1px solid rgba(255,255,255,0.1);
+            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5);
             animation: fadeInUp 0.6s ease;
-        }
-
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
         }
 
         .login-logo {
             text-align: center;
-            margin-bottom: 30px;
+            margin-bottom: 32px;
         }
 
         .login-logo img {
-            max-width: 120px;
+            max-width: 100px;
             height: auto;
-            margin-bottom: 15px;
+            margin-bottom: 16px;
         }
 
         .login-logo h2 {
-            color: #1e3c72;
+            background: linear-gradient(135deg, #fff 0%, #94a3b8 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
             font-size: 28px;
             font-weight: 700;
         }
 
         .login-logo p {
-            color: #718096;
+            color: #94a3b8;
             font-size: 14px;
             margin-top: 8px;
         }
@@ -82,194 +114,262 @@
         .login-form .input-group label {
             display: block;
             margin-bottom: 8px;
-            font-weight: 600;
-            color: #2d3748;
+            font-weight: 500;
+            color: #cbd5e1;
+            font-size: 14px;
         }
 
         .login-form .input-group input {
             width: 100%;
-            padding: 14px 16px;
-            border: 2px solid #e2e8f0;
-            border-radius: 12px;
+            padding: 16px 18px;
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 20px;
             font-size: 16px;
+            color: white;
             transition: all 0.3s;
         }
 
         .login-form .input-group input:focus {
             outline: none;
-            border-color: #1e3c72;
-            box-shadow: 0 0 0 3px rgba(30, 60, 114, 0.1);
+            border-color: #3b82f6;
+            background: rgba(59,130,246,0.1);
+            box-shadow: 0 0 0 3px rgba(59,130,246,0.2);
+        }
+
+        .login-form .input-group input::placeholder {
+            color: #64748b;
         }
 
         .login-btn {
             width: 100%;
-            padding: 14px;
-            background: linear-gradient(135deg, #1e3c72, #2a5298);
+            padding: 16px;
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
             color: white;
             border: none;
-            border-radius: 12px;
+            border-radius: 20px;
             font-size: 16px;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s;
+            margin-top: 8px;
         }
 
-        .login-btn:hover {
+        .login-btn:hover:not(:disabled) {
             transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(30, 60, 114, 0.4);
+            box-shadow: 0 10px 25px -5px rgba(59,130,246,0.4);
         }
 
         .login-error {
-            background: #fed7d7;
-            color: #c53030;
+            background: rgba(239,68,68,0.2);
+            backdrop-filter: blur(10px);
+            color: #fca5a5;
             padding: 12px;
-            border-radius: 10px;
+            border-radius: 16px;
             margin-bottom: 20px;
             text-align: center;
             font-size: 14px;
             display: none;
+            border: 1px solid rgba(239,68,68,0.3);
         }
 
-        /* Sistema Principal */
         .system-container {
             display: none;
+            background: #0f172a;
+            min-height: 100vh;
         }
 
-        .container {
+        .app-header {
+            background: rgba(15,23,42,0.95);
+            backdrop-filter: blur(20px);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            padding: 16px 20px;
+        }
+
+        .header-content {
             max-width: 1400px;
             margin: 0 auto;
-            padding: 20px;
-        }
-
-        .header {
-            background: white;
-            border-radius: 20px;
-            padding: 20px 30px;
-            margin-bottom: 30px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
             display: flex;
             justify-content: space-between;
             align-items: center;
             flex-wrap: wrap;
-            gap: 20px;
+            gap: 16px;
         }
 
-        .header-left {
+        .logo-area {
             display: flex;
             align-items: center;
-            gap: 20px;
-            flex-wrap: wrap;
+            gap: 12px;
         }
 
-        .logo-escola {
-            display: flex;
-            align-items: center;
-            gap: 15px;
+        .logo-area img {
+            width: 45px;
+            height: 45px;
+            object-fit: contain;
+            border-radius: 12px;
         }
 
-        .logo-escola img {
-            max-width: 60px;
-            height: auto;
-        }
-
-        .logo-escola h1 {
-            color: #1e3c72;
-            font-size: 24px;
+        .logo-area h1 {
+            font-size: 1.2rem;
             font-weight: 700;
+            background: linear-gradient(135deg, #fff, #94a3b8);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
         }
 
-        .logo-escola h1 i {
-            color: #1e3c72;
-            margin-right: 10px;
+        .logo-area h1 i {
+            background: none;
+            -webkit-background-clip: unset;
+            color: #3b82f6;
+            margin-right: 8px;
         }
 
-        .user-info {
+        .user-area {
             display: flex;
             align-items: center;
-            gap: 15px;
-            background: #f7fafc;
-            padding: 8px 20px;
-            border-radius: 50px;
+            gap: 12px;
+            background: rgba(255,255,255,0.05);
+            padding: 8px 16px;
+            border-radius: 40px;
         }
 
-        .user-info i {
+        .user-area i {
             font-size: 20px;
-            color: #1e3c72;
+            color: #3b82f6;
         }
 
-        .user-info span {
-            font-weight: 600;
-            color: #2d3748;
+        .user-area span {
+            color: #e2e8f0;
+            font-weight: 500;
+            font-size: 14px;
         }
 
         .logout-btn {
-            background: #f56565;
-            color: white;
+            background: rgba(239,68,68,0.2);
+            color: #fca5a5;
             border: none;
-            padding: 8px 20px;
-            border-radius: 50px;
+            padding: 8px 16px;
+            border-radius: 40px;
             cursor: pointer;
             font-weight: 600;
+            font-size: 13px;
             transition: all 0.3s;
         }
 
         .logout-btn:hover {
-            background: #e53e3e;
-            transform: translateY(-2px);
+            background: #ef4444;
+            color: white;
         }
 
-        .tabs {
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(15,23,42,0.95);
+            backdrop-filter: blur(20px);
+            border-top: 1px solid rgba(255,255,255,0.05);
             display: flex;
-            gap: 15px;
-            margin-bottom: 30px;
+            justify-content: space-around;
+            padding: 12px 20px 20px;
+            z-index: 100;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            background: none;
+            border: none;
+            color: #64748b;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+            padding: 8px 16px;
+            border-radius: 30px;
+        }
+
+        .nav-item i {
+            font-size: 22px;
+        }
+
+        .nav-item.active {
+            color: #3b82f6;
+            background: rgba(59,130,246,0.15);
+        }
+
+        .nav-item:hover {
+            color: #3b82f6;
+        }
+
+        .main-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px 16px 90px;
+        }
+
+        .tabs-desktop {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 24px;
+            background: rgba(255,255,255,0.03);
+            padding: 8px;
+            border-radius: 60px;
+            width: fit-content;
             flex-wrap: wrap;
         }
 
         .tab-btn {
             padding: 12px 28px;
-            background: rgba(255, 255, 255, 0.2);
+            background: transparent;
             border: none;
-            border-radius: 50px;
-            color: white;
-            font-size: 16px;
+            border-radius: 40px;
+            color: #94a3b8;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s;
-            backdrop-filter: blur(10px);
         }
 
         .tab-btn.active {
-            background: white;
-            color: #1e3c72;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            background: #3b82f6;
+            color: white;
         }
 
-        .tab-btn:hover {
-            background: rgba(255, 255, 255, 0.3);
-            transform: translateY(-2px);
+        .tab-btn:hover:not(.active) {
+            background: rgba(59,130,246,0.2);
+            color: white;
         }
 
-        .dashboard {
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active-tab {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        /* Dashboard Grid */
+        .dashboard-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-            gap: 25px;
-            margin-bottom: 30px;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
         }
 
         .stock-card {
-            background: white;
-            border-radius: 20px;
-            padding: 25px;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
-            transition: transform 0.3s, box-shadow 0.3s;
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            border-radius: 28px;
+            padding: 20px;
+            border: 1px solid rgba(255,255,255,0.05);
+            transition: all 0.3s;
             cursor: pointer;
             position: relative;
             overflow: hidden;
-        }
-
-        .stock-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.15);
         }
 
         .stock-card::before {
@@ -278,39 +378,48 @@
             top: 0;
             left: 0;
             right: 0;
-            height: 5px;
-            background: linear-gradient(90deg, #1e3c72, #2a5298);
+            height: 4px;
+            background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+        }
+
+        .stock-card:hover {
+            transform: translateY(-4px);
+            border-color: rgba(59,130,246,0.3);
+            box-shadow: 0 20px 25px -12px rgba(0,0,0,0.5);
         }
 
         .card-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 20px;
+            margin-bottom: 16px;
         }
 
         .card-header h3 {
-            font-size: 24px;
+            font-size: 1.25rem;
             font-weight: 700;
-            color: #2d3748;
+            color: white;
         }
 
         .card-header i {
-            font-size: 48px;
+            font-size: 40px;
             opacity: 0.3;
         }
 
         .total-items {
-            font-size: 36px;
+            font-size: 2.5rem;
             font-weight: 800;
-            color: #1e3c72;
-            margin: 15px 0;
+            background: linear-gradient(135deg, #fff, #94a3b8);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            margin: 12px 0;
         }
 
         .items-list {
-            max-height: 300px;
+            max-height: 280px;
             overflow-y: auto;
-            margin-top: 15px;
+            margin-top: 16px;
         }
 
         .item-row {
@@ -318,43 +427,222 @@
             justify-content: space-between;
             align-items: center;
             padding: 12px;
-            border-bottom: 1px solid #e2e8f0;
-            font-size: 14px;
-            transition: background 0.2s;
+            background: rgba(255,255,255,0.03);
+            border-radius: 16px;
+            margin-bottom: 8px;
+            transition: all 0.2s;
         }
 
         .item-row:hover {
-            background: #f7fafc;
+            background: rgba(59,130,246,0.1);
+            transform: translateX(4px);
         }
 
         .item-name {
             font-weight: 500;
+            color: #e2e8f0;
+            font-size: 14px;
             flex: 1;
             word-break: break-word;
-            padding-right: 10px;
         }
 
         .item-qty {
             font-weight: 700;
-            color: #48bb78;
-            background: #f0fff4;
-            padding: 4px 10px;
-            border-radius: 20px;
-            min-width: 100px;
-            text-align: center;
+            color: #4ade80;
+            background: rgba(74,222,128,0.1);
+            padding: 4px 12px;
+            border-radius: 30px;
             font-size: 13px;
+            white-space: nowrap;
         }
 
-        .form-container {
-            background: white;
+        /* Analytics Styles */
+        .analytics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin-bottom: 24px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            border-radius: 24px;
+            padding: 20px;
+            border: 1px solid rgba(255,255,255,0.05);
+            transition: all 0.3s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-4px);
+            border-color: rgba(59,130,246,0.3);
+        }
+
+        .stat-icon {
+            width: 50px;
+            height: 50px;
+            background: rgba(59,130,246,0.15);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 16px;
+        }
+
+        .stat-icon i {
+            font-size: 28px;
+            color: #3b82f6;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 800;
+            color: white;
+            margin-bottom: 4px;
+        }
+
+        .stat-label {
+            color: #94a3b8;
+            font-size: 14px;
+        }
+
+        .stat-change {
+            font-size: 12px;
+            margin-top: 8px;
+            color: #4ade80;
+        }
+
+        .chart-container {
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            border-radius: 24px;
+            padding: 20px;
+            border: 1px solid rgba(255,255,255,0.05);
+            margin-bottom: 20px;
+        }
+
+        .chart-container h3 {
+            color: white;
+            font-size: 1.1rem;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .chart-container h3 i {
+            color: #3b82f6;
+        }
+
+        .charts-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .top-items-list {
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            border-radius: 24px;
+            padding: 20px;
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .top-items-list h3 {
+            color: white;
+            font-size: 1.1rem;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .top-item-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .top-item-rank {
+            width: 30px;
+            height: 30px;
+            background: rgba(59,130,246,0.2);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            color: #3b82f6;
+        }
+
+        .top-item-info {
+            flex: 1;
+            margin-left: 12px;
+        }
+
+        .top-item-name {
+            color: white;
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        .top-item-setor {
+            color: #64748b;
+            font-size: 11px;
+        }
+
+        .top-item-qty {
+            font-weight: 700;
+            color: #4ade80;
+            font-size: 16px;
+        }
+
+        .badge-low-stock {
+            background: rgba(239,68,68,0.2);
+            color: #fca5a5;
+            padding: 2px 8px;
             border-radius: 20px;
-            padding: 30px;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+            font-size: 10px;
         }
 
-        .form-container h2 {
-            margin-bottom: 25px;
-            color: #2d3748;
+        .badge-medium-stock {
+            background: rgba(245,158,11,0.2);
+            color: #fbbf24;
+            padding: 2px 8px;
+            border-radius: 20px;
+            font-size: 10px;
+        }
+
+        .badge-high-stock {
+            background: rgba(34,197,94,0.2);
+            color: #4ade80;
+            padding: 2px 8px;
+            border-radius: 20px;
+            font-size: 10px;
+        }
+
+        canvas {
+            max-height: 300px;
+        }
+
+        .form-card {
+            background: #1e293b;
+            border-radius: 28px;
+            padding: 24px;
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .form-card h2 {
+            color: white;
+            font-size: 1.3rem;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .form-card h2 i {
+            color: #3b82f6;
         }
 
         .form-group {
@@ -364,35 +652,43 @@
         .form-group label {
             display: block;
             margin-bottom: 8px;
-            font-weight: 600;
-            color: #2d3748;
+            font-weight: 500;
+            color: #cbd5e1;
+            font-size: 14px;
         }
 
         .form-group input, .form-group select, .form-group textarea {
             width: 100%;
-            padding: 12px;
-            border: 2px solid #e2e8f0;
-            border-radius: 10px;
+            padding: 14px 16px;
+            background: #0f172a;
+            border: 1px solid #334155;
+            border-radius: 20px;
             font-size: 14px;
+            color: white;
             transition: all 0.3s;
             font-family: inherit;
         }
 
-        .form-group textarea {
-            resize: vertical;
-            min-height: 80px;
-        }
-
         .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
             outline: none;
-            border-color: #1e3c72;
-            box-shadow: 0 0 0 3px rgba(30, 60, 114, 0.1);
+            border-color: #3b82f6;
+            background: #1e293b;
+            box-shadow: 0 0 0 3px rgba(59,130,246,0.2);
+        }
+
+        .form-group input::placeholder, .form-group textarea::placeholder {
+            color: #64748b;
+        }
+
+        .form-group select option {
+            background: #1e293b;
+            color: white;
         }
 
         .btn {
-            padding: 12px 24px;
+            padding: 14px 24px;
             border: none;
-            border-radius: 10px;
+            border-radius: 30px;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s;
@@ -400,40 +696,96 @@
         }
 
         .btn-primary {
-            background: linear-gradient(135deg, #1e3c72, #2a5298);
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
             color: white;
         }
 
-        .btn-primary:hover {
+        .btn-primary:hover:not(:disabled) {
             transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(30, 60, 114, 0.4);
-        }
-
-        .btn-success {
-            background: #48bb78;
-            color: white;
+            box-shadow: 0 10px 20px -5px rgba(59,130,246,0.4);
         }
 
         .btn-danger {
-            background: #f56565;
+            background: rgba(239,68,68,0.2);
+            color: #fca5a5;
+            border: 1px solid rgba(239,68,68,0.3);
+        }
+
+        .btn-danger:hover:not(:disabled) {
+            background: #ef4444;
+            color: white;
+        }
+
+        .btn-success {
+            background: rgba(34,197,94,0.2);
+            color: #4ade80;
+            border: 1px solid rgba(34,197,94,0.3);
+        }
+
+        .btn-success:hover:not(:disabled) {
+            background: #22c55e;
             color: white;
         }
 
         .btn-warning {
-            background: #ed8936;
+            background: rgba(245,158,11,0.2);
+            color: #fbbf24;
+            border: 1px solid rgba(245,158,11,0.3);
+        }
+
+        .btn-warning:hover:not(:disabled) {
+            background: #f59e0b;
             color: white;
         }
 
         .btn-info {
-            background: #4299e1;
+            background: rgba(59,130,246,0.2);
+            color: #3b82f6;
+            border: 1px solid rgba(59,130,246,0.3);
+        }
+
+        .btn-info:hover:not(:disabled) {
+            background: #3b82f6;
             color: white;
         }
 
-        .report-buttons {
+        .catalogo-item {
+            background: #0f172a;
+            padding: 16px;
+            border-radius: 20px;
+            margin-bottom: 12px;
             display: flex;
-            gap: 15px;
-            margin-top: 20px;
+            justify-content: space-between;
+            align-items: center;
             flex-wrap: wrap;
+            gap: 12px;
+            transition: all 0.2s;
+            border: 1px solid #334155;
+        }
+
+        .catalogo-item:hover {
+            background: #1e293b;
+            border-color: #3b82f6;
+        }
+
+        .catalogo-item-info p:first-child {
+            font-weight: 600;
+            color: white;
+        }
+
+        .catalogo-item-info p:last-child {
+            font-size: 12px;
+            color: #3b82f6;
+        }
+
+        .catalogo-item-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .catalogo-item-actions button {
+            padding: 8px 16px;
+            font-size: 12px;
         }
 
         .modal {
@@ -443,21 +795,23 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.5);
-            backdrop-filter: blur(5px);
+            background: rgba(0,0,0,0.8);
+            backdrop-filter: blur(12px);
             justify-content: center;
             align-items: center;
             z-index: 1000;
         }
 
         .modal-content {
-            background: white;
-            border-radius: 20px;
-            padding: 30px;
-            max-width: 700px;
+            background: #1e293b;
+            border-radius: 32px;
+            padding: 24px;
+            max-width: 550px;
             width: 90%;
             max-height: 85vh;
             overflow-y: auto;
+            border: 1px solid rgba(255,255,255,0.1);
+            animation: fadeInUp 0.3s ease;
         }
 
         .modal-header {
@@ -466,271 +820,288 @@
             align-items: center;
             margin-bottom: 20px;
             padding-bottom: 15px;
-            border-bottom: 2px solid #e2e8f0;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
         }
 
         .modal-header h3 {
-            font-size: 24px;
-            color: #2d3748;
+            color: white;
+            font-size: 1.3rem;
         }
 
         .close-modal {
             font-size: 28px;
             cursor: pointer;
-            color: #a0aec0;
+            color: #94a3b8;
             transition: color 0.2s;
         }
 
         .close-modal:hover {
-            color: #f56565;
+            color: #ef4444;
         }
 
-        .item-detail {
-            background: #f7fafc;
-            padding: 15px;
-            border-radius: 10px;
+        .modal-section {
+            background: #0f172a;
+            border-radius: 20px;
+            padding: 16px;
             margin-bottom: 20px;
+        }
+
+        .modal-section h4 {
+            color: white;
+            margin-bottom: 12px;
+            font-size: 1rem;
+        }
+
+        .modal-select {
+            width: 100%;
+            padding: 12px;
+            background: #1e293b;
+            border: 1px solid #334155;
+            border-radius: 16px;
+            color: white;
+            margin-bottom: 12px;
+            font-size: 14px;
+        }
+
+        .modal-select option {
+            background: #1e293b;
+            color: white;
+        }
+
+        .modal-input {
+            flex: 1;
+            padding: 12px;
+            background: #1e293b;
+            border: 1px solid #334155;
+            border-radius: 16px;
+            color: white;
+            font-size: 14px;
+        }
+
+        .modal-input::placeholder {
+            color: #64748b;
+        }
+
+        .modal-search {
+            width: 100%;
+            padding: 12px;
+            background: #1e293b;
+            border: 1px solid #334155;
+            border-radius: 16px;
+            color: white;
+            margin-bottom: 16px;
+        }
+
+        .modal-search::placeholder {
+            color: #64748b;
+        }
+
+        .modal-item-detail {
+            background: #0f172a;
+            border-radius: 16px;
+            padding: 12px;
+            margin-bottom: 8px;
             cursor: pointer;
             transition: all 0.2s;
+            border: 1px solid #334155;
         }
 
-        .item-detail:hover {
-            background: #e2e8f0;
-            transform: translateX(5px);
+        .modal-item-detail:hover {
+            background: #1e293b;
+            border-color: #3b82f6;
+            transform: translateX(4px);
         }
 
-        .item-detail p {
-            margin: 8px 0;
-            font-size: 16px;
-        }
-
-        .item-detail strong {
-            color: #2d3748;
-        }
-
-        .movement-buttons {
-            display: flex;
-            gap: 15px;
-            margin-top: 20px;
-            flex-wrap: wrap;
-        }
-
-        .movement-form {
-            margin-top: 20px;
-            padding-top: 20px;
-            border-top: 1px solid #e2e8f0;
-        }
-
-        .input-group {
-            margin-bottom: 15px;
-        }
-
-        .input-group label {
-            display: block;
+        .modal-item-name {
+            color: white;
+            font-weight: 500;
             margin-bottom: 8px;
-            font-weight: 600;
-            color: #2d3748;
         }
 
-        .input-group input, .input-group select, .input-group textarea {
-            width: 100%;
-            padding: 10px;
-            border: 2px solid #e2e8f0;
-            border-radius: 8px;
-            font-size: 16px;
-            font-family: inherit;
+        .modal-item-qty {
+            color: #4ade80;
+            font-size: 20px;
+            font-weight: bold;
         }
 
-        .input-group textarea {
-            resize: vertical;
-            min-height: 80px;
-        }
-
-        .search-box {
-            margin-bottom: 20px;
-            position: relative;
-        }
-
-        .search-box input {
-            width: 100%;
-            padding: 12px 40px 12px 15px;
-            border: 2px solid #e2e8f0;
-            border-radius: 10px;
-            font-size: 16px;
-            transition: all 0.3s;
-        }
-
-        .search-box input:focus {
-            outline: none;
-            border-color: #1e3c72;
-            box-shadow: 0 0 0 3px rgba(30, 60, 114, 0.1);
-        }
-
-        .search-box i {
-            position: absolute;
-            right: 15px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: #a0aec0;
-        }
-
-        .catalogo-item {
-            background: #f7fafc;
-            padding: 15px;
-            border-radius: 10px;
-            margin-bottom: 10px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 10px;
-        }
-
-        .catalogo-item-info {
-            flex: 1;
-        }
-
-        .catalogo-item-info p {
-            margin: 5px 0;
-        }
-
-        .catalogo-item-actions {
-            display: flex;
-            gap: 10px;
-        }
-
-        .add-item-section {
-            background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
-            padding: 20px;
-            border-radius: 15px;
-            margin-bottom: 25px;
-        }
-
-        .badge {
-            display: inline-block;
-            padding: 4px 8px;
-            background: #edf2f7;
-            border-radius: 6px;
+        .modal-item-small {
+            color: #64748b;
             font-size: 12px;
-            color: #4a5568;
+            margin-top: 4px;
+        }
+
+        .badge-count {
+            background: #1e293b;
+            color: #94a3b8;
+            padding: 4px 12px;
+            border-radius: 30px;
+            font-size: 12px;
+        }
+
+        .movement-item-card {
+            background: #0f172a;
+            border-radius: 20px;
+            padding: 16px;
+            margin-bottom: 20px;
+            border: 1px solid #334155;
+        }
+
+        .movement-item-card p {
+            color: #94a3b8;
+            font-size: 13px;
+            margin-bottom: 4px;
+        }
+
+        .movement-item-card .item-name {
+            color: white;
+            font-weight: 600;
+            font-size: 16px;
+            margin-bottom: 8px;
+        }
+
+        .movement-item-card .item-qty-large {
+            color: #4ade80;
+            font-size: 32px;
+            font-weight: bold;
         }
 
         .historico-item {
-            background: white;
+            background: #1e293b;
             border-left: 4px solid;
-            padding: 12px;
-            margin-bottom: 10px;
-            border-radius: 8px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            padding: 16px;
+            margin-bottom: 12px;
+            border-radius: 20px;
+            transition: all 0.2s;
         }
 
         .historico-item.adicao {
-            border-left-color: #48bb78;
+            border-left-color: #22c55e;
         }
 
         .historico-item.baixa {
-            border-left-color: #f56565;
+            border-left-color: #ef4444;
+        }
+
+        .historico-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+
+        .historico-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 12px;
+        }
+
+        .historico-actions button {
+            padding: 6px 12px;
+            font-size: 12px;
+        }
+
+        .badge {
+            background: rgba(59,130,246,0.2);
+            color: #3b82f6;
+            padding: 4px 12px;
+            border-radius: 30px;
+            font-size: 12px;
         }
 
         .alert {
             position: fixed;
-            top: 20px;
+            bottom: 80px;
+            left: 20px;
             right: 20px;
-            padding: 15px 20px;
-            border-radius: 10px;
-            background: white;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            background: #1e293b;
+            border-radius: 20px;
+            padding: 16px 20px;
             z-index: 1100;
-            animation: slideIn 0.3s ease;
+            animation: slideInRight 0.3s ease;
             display: flex;
             align-items: center;
-            gap: 10px;
-        }
-
-        @keyframes slideIn {
-            from {
-                transform: translateX(100%);
-                opacity: 0;
-            }
-            to {
-                transform: translateX(0);
-                opacity: 1;
-            }
+            gap: 12px;
+            border: 1px solid rgba(255,255,255,0.1);
+            box-shadow: 0 10px 25px -5px rgba(0,0,0,0.3);
         }
 
         .empty-state {
             text-align: center;
-            padding: 40px;
-            color: #a0aec0;
+            padding: 40px 20px;
+            color: #64748b;
         }
 
         .empty-state i {
             font-size: 48px;
-            margin-bottom: 15px;
+            margin-bottom: 16px;
+            opacity: 0.5;
         }
 
-        hr {
-            margin: 20px 0;
+        .report-buttons {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .report-buttons .btn {
+            flex: 1;
+            min-width: 140px;
+            text-align: center;
         }
 
         .footer {
             text-align: center;
-            padding: 25px;
-            color: rgba(255, 255, 255, 0.8);
-            font-size: 14px;
-            margin-top: 30px;
+            padding: 20px;
+            color: #475569;
+            font-size: 12px;
         }
 
-        @media print {
-            body {
-                background: white;
-                padding: 0;
-                margin: 0;
-            }
-            .tabs, .tab-btn, .btn, .close-modal, .header, .report-buttons, .stock-card, .footer, .user-info, .logout-btn {
-                display: none !important;
-            }
-            .print-report {
-                display: block !important;
-                padding: 20px;
-            }
+        hr {
+            margin: 24px 0;
+            border-color: #334155;
         }
 
-        @media (max-width: 768px) {
-            .dashboard {
+        .search-box input {
+            width: 100%;
+            padding: 14px;
+            background: #0f172a;
+            border: 1px solid #334155;
+            border-radius: 20px;
+            color: white;
+        }
+
+        .search-box input::placeholder {
+            color: #64748b;
+        }
+
+        @media (max-width: 767px) {
+            .tabs-desktop {
+                display: none;
+            }
+            .charts-row {
                 grid-template-columns: 1fr;
             }
-            .tab-btn {
-                padding: 8px 20px;
-                font-size: 14px;
+        }
+
+        @media (min-width: 768px) {
+            .bottom-nav {
+                display: none;
             }
-            .modal-content {
-                padding: 20px;
-            }
-            .header {
-                flex-direction: column;
-                text-align: center;
-            }
-            .header-left {
-                justify-content: center;
-            }
-            .logo-escola h1 {
-                font-size: 18px;
-            }
-            .logo-escola img {
-                max-width: 45px;
+            .main-content {
+                padding: 24px;
             }
         }
     </style>
 </head>
 <body>
-    <!-- Tela de Login -->
     <div id="loginContainer" class="login-container">
         <div class="login-card">
             <div class="login-logo">
-                <img src="logo.png" alt="Logo da Escola" id="loginLogo" onerror="this.style.display='none'">
-                <h2><i class="fas fa-school"></i> Estoque Escolar</h2>
-                <p>Sistema de Controle de Estoque</p>
+                <img src="logo.png" alt="Logo" id="loginLogo" onerror="this.style.display='none'">
+                <h2><i class="fas fa-school"></i> Estoque Escolar - EMEF José Sabbag</h2>
+                <p>Controle inteligente de materiais</p>
             </div>
             <div id="loginError" class="login-error">
                 <i class="fas fa-exclamation-circle"></i> Usuário ou senha incorretos!
@@ -744,119 +1115,169 @@
                     <label><i class="fas fa-lock"></i> Senha</label>
                     <input type="password" id="password" placeholder="Digite sua senha" required>
                 </div>
-                <button type="submit" class="login-btn">
-                    <i class="fas fa-sign-in-alt"></i> Entrar no Sistema
+                <button type="submit" class="login-btn" id="loginButton">
+                    <i class="fas fa-arrow-right-to-bracket"></i> Entrar
                 </button>
             </form>
         </div>
     </div>
 
-    <!-- Sistema Principal -->
     <div id="systemContainer" class="system-container">
-        <div class="container">
-            <div class="header">
-                <div class="header-left">
-                    <div class="logo-escola">
-                        <img src="logo.png" alt="Logo da Escola" id="systemLogo" onerror="this.style.display='none'">
-                        <h1><i class="fas fa-school"></i> Sistema de Controle de Estoque Escolar</h1>
-                    </div>
+        <div class="app-header">
+            <div class="header-content">
+                <div class="logo-area">
+                    <img src="logo.png" alt="Logo" id="systemLogo" onerror="this.style.display='none'">
+                    <h1><i class="fas fa-school"></i> Estoque Escolar</h1>
                 </div>
-                <div class="user-info">
+                <div class="user-area">
                     <i class="fas fa-user-circle"></i>
-                    <span>Bem-vindo, <strong id="userName">Usuário</strong></span>
+                    <span id="userName">Usuário</span>
                     <button class="logout-btn" onclick="logout()">
                         <i class="fas fa-sign-out-alt"></i> Sair
                     </button>
                 </div>
             </div>
+        </div>
 
-            <div class="tabs">
-                <button class="tab-btn active" onclick="showTab('dashboard')">
+        <div class="main-content">
+            <div class="tabs-desktop">
+                <button class="tab-btn active" data-tab="dashboard">
                     <i class="fas fa-chart-line"></i> Dashboard
                 </button>
-                <button class="tab-btn" onclick="showTab('cadastro')">
-                    <i class="fas fa-plus-circle"></i> Cadastrar Item
+                <button class="tab-btn" data-tab="analytics">
+                    <i class="fas fa-chart-pie"></i> Analytics
                 </button>
-                <button class="tab-btn" onclick="showTab('historico')">
-                    <i class="fas fa-history"></i> Histórico Geral
+                <button class="tab-btn" data-tab="cadastro">
+                    <i class="fas fa-plus-circle"></i> Cadastrar
                 </button>
-                <button class="tab-btn" onclick="showTab('relatorios')">
+                <button class="tab-btn" data-tab="historico">
+                    <i class="fas fa-history"></i> Histórico
+                </button>
+                <button class="tab-btn" data-tab="relatorios">
                     <i class="fas fa-file-alt"></i> Relatórios
                 </button>
             </div>
 
-            <div id="dashboardTab" class="tab-content">
-                <div class="dashboard" id="dashboardCards"></div>
+            <div id="dashboardTab" class="tab-content active-tab">
+                <div class="dashboard-grid" id="dashboardCards"></div>
             </div>
 
-            <div id="cadastroTab" class="tab-content" style="display: none;">
-                <div class="form-container">
+            <div id="analyticsTab" class="tab-content">
+                <!-- Cards de estatísticas -->
+                <div class="analytics-grid" id="statsCards"></div>
+                
+                <!-- Gráficos -->
+                <div class="charts-row">
+                    <div class="chart-container">
+                        <h3><i class="fas fa-chart-bar"></i> Itens por Setor</h3>
+                        <canvas id="setorChart"></canvas>
+                    </div>
+                    <div class="chart-container">
+                        <h3><i class="fas fa-chart-pie"></i> Distribuição por Setor (%)</h3>
+                        <canvas id="pieChart"></canvas>
+                    </div>
+                </div>
+                
+                <div class="charts-row">
+                    <div class="chart-container">
+                        <h3><i class="fas fa-chart-line"></i> Top 10 Itens em Quantidade</h3>
+                        <canvas id="topItemsChart"></canvas>
+                    </div>
+                    <div class="top-items-list">
+                        <h3><i class="fas fa-trophy"></i> Ranking de Itens</h3>
+                        <div id="rankingList"></div>
+                    </div>
+                </div>
+                
+                <!-- Itens com estoque baixo -->
+                <div class="chart-container">
+                    <h3><i class="fas fa-exclamation-triangle"></i> Itens com Estoque Crítico (≤ 10 unidades)</h3>
+                    <div id="lowStockList"></div>
+                </div>
+            </div>
+
+            <div id="cadastroTab" class="tab-content">
+                <div class="form-card">
                     <h2><i class="fas fa-box-open"></i> Cadastrar Novo Item</h2>
                     <form id="cadastroForm">
                         <div class="form-group">
-                            <label><i class="fas fa-tag"></i> Nome/Descrição do Item:</label>
-                            <textarea id="cadastroNome" rows="3" placeholder="Ex: Papel Sulfite A4 75g&#10;Kit de Canetas Esferográficas Pretas&#10;Tinta Acrílica para Tecido - Vermelho" required></textarea>
+                            <label><i class="fas fa-tag"></i> Nome/Descrição:</label>
+                            <textarea id="cadastroNome" rows="3" placeholder="Ex: Papel Sulfite A4 75g, Kit de Canetas..." required></textarea>
                         </div>
                         <div class="form-group">
-                            <label><i class="fas fa-calculator"></i> Unidade de Medida:</label>
+                            <label><i class="fas fa-ruler"></i> Unidade:</label>
                             <select id="cadastroUnidade" required>
-                                <option value="CX">CX (Caixa)</option>
-                                <option value="UNID">UNID (Unidade)</option>
-                                <option value="PCTE">PCTE (Pacote)</option>
-                                <option value="FLS">FLS (Folhas)</option>
-                                <option value="ROLO">ROLO (Rolo)</option>
-                                <option value="RESMA">RESMA (Resma)</option>
+                                <option value="CX">📦 CX (Caixa)</option>
+                                <option value="UNID">🔢 UNID (Unidade)</option>
+                                <option value="PCTE">📦 PCTE (Pacote)</option>
+                                <option value="FLS">📄 FLS (Folhas)</option>
+                                <option value="ROLO">🧻 ROLO (Rolo)</option>
+                                <option value="RESMA">📑 RESMA (Resma)</option>
                             </select>
                         </div>
-                        <button type="submit" class="btn btn-primary">
-                            <i class="fas fa-save"></i> Cadastrar Item
+                        <button type="submit" class="btn btn-primary" id="cadastrarButton">
+                            <i class="fas fa-save"></i> Cadastrar
                         </button>
                     </form>
 
                     <hr>
 
-                    <h2><i class="fas fa-edit"></i> Gerenciar Itens Cadastrados</h2>
+                    <h2><i class="fas fa-edit"></i> Itens Cadastrados</h2>
                     <div id="listaItensCadastrados"></div>
                 </div>
             </div>
 
-            <div id="historicoTab" class="tab-content" style="display: none;">
-                <div class="form-container">
-                    <h2><i class="fas fa-history"></i> Histórico de Movimentações</h2>
+            <div id="historicoTab" class="tab-content">
+                <div class="form-card">
+                    <h2><i class="fas fa-history"></i> Movimentações</h2>
                     <div class="search-box" style="margin-bottom: 20px;">
-                        <i class="fas fa-search"></i>
                         <input type="text" id="buscarHistorico" placeholder="🔍 Buscar por item, setor, motivo..." onkeyup="filtrarHistorico()">
                     </div>
                     <div id="listaHistorico"></div>
                 </div>
             </div>
 
-            <div id="relatoriosTab" class="tab-content" style="display: none;">
-                <div class="form-container">
-                    <h2><i class="fas fa-chart-bar"></i> Gerar Relatórios para Impressão</h2>
+            <div id="relatoriosTab" class="tab-content">
+                <div class="form-card">
+                    <h2><i class="fas fa-chart-bar"></i> Relatórios</h2>
                     <div class="report-buttons">
-                        <button onclick="gerarRelatorio('almoxarifado')" class="btn btn-primary">
-                            <i class="fas fa-box"></i> Imprimir Almoxarifado
-                        </button>
-                        <button onclick="gerarRelatorio('secretaria')" class="btn btn-primary">
-                            <i class="fas fa-building"></i> Imprimir Secretaria
-                        </button>
-                        <button onclick="gerarRelatorio('atelie')" class="btn btn-primary">
-                            <i class="fas fa-palette"></i> Imprimir Ateliê
-                        </button>
-                        <button onclick="gerarRelatorio('geral')" class="btn btn-success">
-                            <i class="fas fa-chart-bar"></i> Imprimir Relatório Geral
-                        </button>
-                        <button onclick="gerarRelatorioHistorico()" class="btn btn-info">
-                            <i class="fas fa-history"></i> Imprimir Histórico Completo
-                        </button>
+                        <button onclick="gerarRelatorio('almoxarifado')" class="btn btn-primary">📦 Almoxarifado</button>
+                        <button onclick="gerarRelatorio('secretaria')" class="btn btn-primary">🏢 Secretaria</button>
+                        <button onclick="gerarRelatorio('atelie')" class="btn btn-primary">🎨 Ateliê</button>
+                        <button onclick="gerarRelatorio('limpeza')" class="btn btn-primary">🧹 Limpeza</button>
+                        <button onclick="gerarRelatorio('cozinha')" class="btn btn-primary">🍽️ Cozinha</button>
+                        <button onclick="gerarRelatorio('geral')" class="btn btn-success">📊 Geral</button>
+                        <button onclick="gerarRelatorioHistorico()" class="btn btn-info">📜 Histórico</button>
                     </div>
                 </div>
             </div>
 
             <div class="footer">
-                <p>© 2026 Desenvolvido por João Lino • Todos os direitos reservados</p>
+                <p>© 2026 Desenvolvido por João_Lino • Todos os direitos reservados</p>
             </div>
+        </div>
+
+        <div class="bottom-nav">
+            <button class="nav-item active" data-mobile-tab="dashboard">
+                <i class="fas fa-chart-line"></i>
+                <span>Dashboard</span>
+            </button>
+            <button class="nav-item" data-mobile-tab="analytics">
+                <i class="fas fa-chart-pie"></i>
+                <span>Analytics</span>
+            </button>
+            <button class="nav-item" data-mobile-tab="cadastro">
+                <i class="fas fa-plus-circle"></i>
+                <span>Cadastrar</span>
+            </button>
+            <button class="nav-item" data-mobile-tab="historico">
+                <i class="fas fa-history"></i>
+                <span>Histórico</span>
+            </button>
+            <button class="nav-item" data-mobile-tab="relatorios">
+                <i class="fas fa-file-alt"></i>
+                <span>Relatórios</span>
+            </button>
         </div>
     </div>
 
@@ -880,47 +1301,137 @@
         </div>
     </div>
 
+    <div id="editHistoricoModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Editar Lançamento</h3>
+                <span class="close-modal" onclick="fecharEditHistoricoModal()">&times;</span>
+            </div>
+            <div id="editHistoricoModalBody"></div>
+        </div>
+    </div>
+
     <script>
-        // ==================== CONFIGURAÇÃO DO SUPABASE ====================
         const SUPABASE_URL = 'https://ulechrokpkrapygxxsyq.supabase.co';
         const SUPABASE_KEY = 'sb_publishable_KrNTNSmkyriR8gAfG5HSdw_VPL85bEc';
         const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-        // Credenciais de login
         const VALID_USERNAME = 'sabbag';
         const VALID_PASSWORD = '337';
 
-        // ==================== VARIÁVEIS GLOBAIS ====================
         let catalogoItens = [];
         let estoque = {
             almoxarifado: [],
             secretaria: [],
-            atelie: []
+            atelie: [],
+            limpeza: [],
+            cozinha: []
         };
         let historico = [];
         let currentItemContext = null;
-        let currentEditItem = null;
         let currentSetor = null;
+        let currentHistoricoItem = null;
 
-        // ==================== FUNÇÕES DE LOGIN ====================
+        // Chart instances
+        let setorChart = null;
+        let pieChart = null;
+        let topItemsChart = null;
+
+        let isProcessing = false;
+        let lastActionTime = 0;
+        const DEBOUNCE_DELAY = 1000;
+
+        function isDuplicateAction() {
+            const now = Date.now();
+            if (now - lastActionTime < DEBOUNCE_DELAY) return true;
+            lastActionTime = now;
+            return false;
+        }
+
+        async function withDebounce(action, actionName) {
+            if (isProcessing) {
+                mostrarAlerta(`Aguarde um momento antes de realizar outra ${actionName}!`, 'warning');
+                return false;
+            }
+            if (isDuplicateAction()) {
+                mostrarAlerta(`Aguarde um momento antes de repetir esta ação!`, 'warning');
+                return false;
+            }
+            isProcessing = true;
+            try {
+                return await action();
+            } catch (error) {
+                console.error(`Erro em ${actionName}:`, error);
+                return false;
+            } finally {
+                setTimeout(() => { isProcessing = false; }, 500);
+            }
+        }
+
+        function desabilitarBotao(botao, textoAlternativo = null) {
+            if (botao && !botao.disabled) {
+                botao.disabled = true;
+                if (textoAlternativo) {
+                    botao.innerHTML = `<i class="fas fa-spinner fa-spin"></i> ${textoAlternativo}`;
+                }
+                setTimeout(() => {
+                    if (botao) {
+                        botao.disabled = false;
+                        if (textoAlternativo && botao.originalHTML) {
+                            botao.innerHTML = botao.originalHTML;
+                        }
+                    }
+                }, 2000);
+            }
+        }
+
+        function salvarTextoOriginalBotao(botao) {
+            if (botao && !botao.originalHTML) {
+                botao.originalHTML = botao.innerHTML;
+            }
+        }
+
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function mostrarAlerta(mensagem, tipo) {
+            const alertDiv = document.createElement('div');
+            alertDiv.className = 'alert';
+            if (tipo === 'success') alertDiv.style.background = '#22c55e';
+            else if (tipo === 'warning') alertDiv.style.background = '#f59e0b';
+            else alertDiv.style.background = '#ef4444';
+            alertDiv.style.color = 'white';
+            alertDiv.innerHTML = `<i class="fas ${tipo === 'success' ? 'fa-check-circle' : tipo === 'warning' ? 'fa-exclamation-triangle' : 'fa-exclamation-circle'}"></i> ${mensagem}`;
+            document.body.appendChild(alertDiv);
+            setTimeout(() => alertDiv.remove(), 3000);
+        }
+
         function login(event) {
             event.preventDefault();
-            const username = document.getElementById('username').value;
-            const password = document.getElementById('password').value;
-            const errorDiv = document.getElementById('loginError');
+            const loginBtn = document.getElementById('loginButton');
+            salvarTextoOriginalBotao(loginBtn);
+            
+            withDebounce(async () => {
+                desabilitarBotao(loginBtn, 'Entrando...');
+                const username = document.getElementById('username').value;
+                const password = document.getElementById('password').value;
+                const errorDiv = document.getElementById('loginError');
 
-            if (username === VALID_USERNAME && password === VALID_PASSWORD) {
-                // Login bem sucedido
-                localStorage.setItem('loggedIn', 'true');
-                localStorage.setItem('username', username);
-                showSystem();
-            } else {
-                // Login falhou
-                errorDiv.style.display = 'block';
-                setTimeout(() => {
-                    errorDiv.style.display = 'none';
-                }, 3000);
-            }
+                if (username === VALID_USERNAME && password === VALID_PASSWORD) {
+                    localStorage.setItem('loggedIn', 'true');
+                    localStorage.setItem('username', username);
+                    showSystem();
+                    return true;
+                } else {
+                    errorDiv.style.display = 'block';
+                    setTimeout(() => errorDiv.style.display = 'none', 3000);
+                    return false;
+                }
+            }, 'login');
         }
 
         function showSystem() {
@@ -938,8 +1449,7 @@
         }
 
         function checkLogin() {
-            const loggedIn = localStorage.getItem('loggedIn');
-            if (loggedIn === 'true') {
+            if (localStorage.getItem('loggedIn') === 'true') {
                 showSystem();
             } else {
                 document.getElementById('loginContainer').style.display = 'flex';
@@ -947,25 +1457,76 @@
             }
         }
 
-        // ==================== FUNÇÕES AUXILIARES ====================
-        function escapeHtml(text) {
-            if (!text) return '';
-            const div = document.createElement('div');
-            div.textContent = text;
-            return div.innerHTML;
+        async function reverterEfeitoHistorico(historicoItem) {
+            const itemCatalogo = catalogoItens.find(i => i.nome === historicoItem.item_nome);
+            if (!itemCatalogo) return false;
+
+            try {
+                const { data: existing } = await supabaseClient
+                    .from('estoque')
+                    .select('*')
+                    .eq('setor', historicoItem.setor)
+                    .eq('catalogo_item_id', itemCatalogo.id)
+                    .maybeSingle();
+
+                if (historicoItem.tipo === 'adicao') {
+                    if (existing) {
+                        const novaQuantidade = existing.quantidade - historicoItem.quantidade;
+                        if (novaQuantidade <= 0) {
+                            await supabaseClient.from('estoque').delete().eq('id', existing.id);
+                        } else {
+                            await supabaseClient.from('estoque').update({ quantidade: novaQuantidade }).eq('id', existing.id);
+                        }
+                    }
+                } else if (historicoItem.tipo === 'baixa') {
+                    if (existing) {
+                        await supabaseClient.from('estoque').update({ quantidade: existing.quantidade + historicoItem.quantidade }).eq('id', existing.id);
+                    } else {
+                        await supabaseClient.from('estoque').insert([{ setor: historicoItem.setor, catalogo_item_id: itemCatalogo.id, quantidade: historicoItem.quantidade }]);
+                    }
+                }
+                return true;
+            } catch (error) {
+                console.error('Erro ao reverter efeito:', error);
+                return false;
+            }
         }
 
-        function mostrarAlerta(mensagem, tipo) {
-            const alertDiv = document.createElement('div');
-            alertDiv.className = 'alert';
-            alertDiv.style.background = tipo === 'success' ? '#48bb78' : '#f56565';
-            alertDiv.style.color = 'white';
-            alertDiv.innerHTML = `<i class="fas ${tipo === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}"></i> ${mensagem}`;
-            document.body.appendChild(alertDiv);
-            setTimeout(() => alertDiv.remove(), 3000);
+        async function aplicarEfeitoHistorico(historicoItem) {
+            const itemCatalogo = catalogoItens.find(i => i.nome === historicoItem.item_nome);
+            if (!itemCatalogo) return false;
+
+            try {
+                const { data: existing } = await supabaseClient
+                    .from('estoque')
+                    .select('*')
+                    .eq('setor', historicoItem.setor)
+                    .eq('catalogo_item_id', itemCatalogo.id)
+                    .maybeSingle();
+
+                if (historicoItem.tipo === 'adicao') {
+                    if (existing) {
+                        await supabaseClient.from('estoque').update({ quantidade: existing.quantidade + historicoItem.quantidade }).eq('id', existing.id);
+                    } else {
+                        await supabaseClient.from('estoque').insert([{ setor: historicoItem.setor, catalogo_item_id: itemCatalogo.id, quantidade: historicoItem.quantidade }]);
+                    }
+                } else if (historicoItem.tipo === 'baixa') {
+                    if (existing) {
+                        const novaQuantidade = existing.quantidade - historicoItem.quantidade;
+                        if (novaQuantidade <= 0) {
+                            await supabaseClient.from('estoque').delete().eq('id', existing.id);
+                        } else {
+                            await supabaseClient.from('estoque').update({ quantidade: novaQuantidade }).eq('id', existing.id);
+                        }
+                    }
+                }
+                return true;
+            } catch (error) {
+                console.error('Erro ao aplicar efeito:', error);
+                return false;
+            }
         }
 
-        // ==================== FUNÇÕES DE BANCO DE DADOS ====================
         async function carregarDados() {
             try {
                 const { data: catalogo, error: catalogoError } = await supabaseClient
@@ -982,16 +1543,18 @@
                 
                 if (estoqueError) throw estoqueError;
                 
-                estoque = { almoxarifado: [], secretaria: [], atelie: [] };
+                estoque = { almoxarifado: [], secretaria: [], atelie: [], limpeza: [], cozinha: [] };
                 
                 if (estoqueData) {
                     estoqueData.forEach(item => {
-                        estoque[item.setor].push({
-                            id: item.catalogo_item_id,
-                            nome: item.catalogo_itens.nome,
-                            unidade: item.catalogo_itens.unidade,
-                            quantidade: item.quantidade
-                        });
+                        if (estoque[item.setor]) {
+                            estoque[item.setor].push({
+                                id: item.catalogo_item_id,
+                                nome: item.catalogo_itens.nome,
+                                unidade: item.catalogo_itens.unidade,
+                                quantidade: item.quantidade
+                            });
+                        }
                     });
                 }
                 
@@ -1007,10 +1570,13 @@
                 atualizarDashboard();
                 atualizarListaItens();
                 atualizarHistorico();
+                atualizarAnalytics();
                 
+                return true;
             } catch (error) {
                 console.error('Erro:', error);
                 mostrarAlerta('Erro ao carregar dados!', 'error');
+                return false;
             }
         }
 
@@ -1022,12 +1588,81 @@
                     .select();
                 
                 if (error) throw error;
+                
                 if (data && data[0]) {
                     historico.unshift(data[0]);
                     atualizarHistorico();
                 }
+                
+                return true;
             } catch (error) {
                 console.error('Erro ao registrar histórico:', error);
+                mostrarAlerta('Erro ao registrar histórico!', 'error');
+                return false;
+            }
+        }
+
+        async function atualizarHistoricoItem(id, updates) {
+            try {
+                const itemOriginal = historico.find(h => h.id === id);
+                if (!itemOriginal) return false;
+
+                await reverterEfeitoHistorico(itemOriginal);
+
+                const { error } = await supabaseClient
+                    .from('historico')
+                    .update({
+                        tipo: updates.tipo,
+                        setor: updates.setor,
+                        item_nome: updates.item_nome,
+                        quantidade: updates.quantidade,
+                        unidade: updates.unidade,
+                        motivo: updates.motivo
+                    })
+                    .eq('id', id);
+                
+                if (error) throw error;
+
+                const novoHistorico = {
+                    setor: updates.setor,
+                    tipo: updates.tipo,
+                    item_nome: updates.item_nome,
+                    quantidade: updates.quantidade
+                };
+                await aplicarEfeitoHistorico(novoHistorico);
+                
+                await carregarDados();
+                return true;
+            } catch (error) {
+                console.error('Erro ao atualizar histórico:', error);
+                mostrarAlerta('Erro ao atualizar lançamento!', 'error');
+                return false;
+            }
+        }
+
+        async function excluirHistoricoItemDB(id) {
+            try {
+                const item = historico.find(h => h.id === id);
+                if (!item) return false;
+
+                await reverterEfeitoHistorico(item);
+
+                const { error } = await supabaseClient
+                    .from('historico')
+                    .delete()
+                    .eq('id', id);
+                
+                if (error) throw error;
+                
+                historico = historico.filter(h => h.id !== id);
+                atualizarHistorico();
+                await carregarDados();
+                mostrarAlerta('🗑️ Lançamento excluído e estoque ajustado com sucesso!', 'success');
+                return true;
+            } catch (error) {
+                console.error('Erro ao excluir histórico:', error);
+                mostrarAlerta('Erro ao excluir lançamento!', 'error');
+                return false;
             }
         }
 
@@ -1038,7 +1673,7 @@
                     .select('*')
                     .eq('setor', setor)
                     .eq('catalogo_item_id', catalogoItemId)
-                    .single();
+                    .maybeSingle();
                 
                 if (existing) {
                     const { error } = await supabaseClient
@@ -1052,25 +1687,276 @@
                         .insert([{ setor, catalogo_item_id: catalogoItemId, quantidade }]);
                     if (error) throw error;
                 }
+                return true;
             } catch (error) {
                 console.error('Erro ao atualizar estoque:', error);
                 throw error;
             }
         }
 
+        // ==================== FUNÇÕES DE ANALYTICS ====================
+        function atualizarAnalytics() {
+            atualizarStatsCards();
+            atualizarGraficos();
+            atualizarRanking();
+            atualizarLowStock();
+        }
+
+        function atualizarStatsCards() {
+            const container = document.getElementById('statsCards');
+            if (!container) return;
+
+            // Calcular estatísticas
+            let totalItens = 0;
+            let totalTipos = 0;
+            let totalSetores = 0;
+            let itensBaixoEstoque = 0;
+
+            for (const setor of Object.keys(estoque)) {
+                const items = estoque[setor];
+                totalTipos += items.length;
+                totalItens += items.reduce((sum, i) => sum + i.quantidade, 0);
+                if (items.length > 0) totalSetores++;
+                itensBaixoEstoque += items.filter(i => i.quantidade <= 10).length;
+            }
+
+            const mediaPorSetor = totalSetores > 0 ? (totalItens / totalSetores).toFixed(1) : 0;
+
+            const cards = [
+                { icon: "fa-boxes", value: totalItens, label: "Total de Itens em Estoque", color: "#3b82f6" },
+                { icon: "fa-tags", value: totalTipos, label: "Tipos de Itens Diferentes", color: "#10b981" },
+                { icon: "fa-building", value: totalSetores, label: "Setores Ativos", color: "#f59e0b" },
+                { icon: "fa-chart-line", value: mediaPorSetor, label: "Média de Itens por Setor", color: "#8b5cf6" },
+                { icon: "fa-exclamation-triangle", value: itensBaixoEstoque, label: "Itens com Estoque Crítico (≤10)", color: "#ef4444" }
+            ];
+
+            container.innerHTML = cards.map(card => `
+                <div class="stat-card">
+                    <div class="stat-icon" style="background: rgba(${card.color === '#3b82f6' ? '59,130,246' : card.color === '#10b981' ? '16,185,129' : card.color === '#f59e0b' ? '245,158,11' : card.color === '#8b5cf6' ? '139,92,246' : '239,68,68'},0.15)">
+                        <i class="fas ${card.icon}" style="color: ${card.color}"></i>
+                    </div>
+                    <div class="stat-value">${card.value}</div>
+                    <div class="stat-label">${card.label}</div>
+                </div>
+            `).join('');
+        }
+
+        function atualizarGraficos() {
+            const setores = ['almoxarifado', 'secretaria', 'atelie', 'limpeza', 'cozinha'];
+            const nomesSetores = ['Almoxarifado', 'Secretaria', 'Ateliê', 'Limpeza', 'Cozinha'];
+            const cores = ['#3b82f6', '#10b981', '#f59e0b', '#06b6d4', '#ec4899'];
+            
+            // Dados para gráfico de barras
+            const quantidadesPorSetor = setores.map(s => 
+                estoque[s].reduce((sum, i) => sum + i.quantidade, 0)
+            );
+            
+            // Destruir gráficos existentes
+            if (setorChart) setorChart.destroy();
+            if (pieChart) pieChart.destroy();
+            
+            // Gráfico de Barras
+            const barCtx = document.getElementById('setorChart').getContext('2d');
+            setorChart = new Chart(barCtx, {
+                type: 'bar',
+                data: {
+                    labels: nomesSetores,
+                    datasets: [{
+                        label: 'Quantidade de Itens',
+                        data: quantidadesPorSetor,
+                        backgroundColor: cores,
+                        borderRadius: 8,
+                        borderSkipped: false
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: { labels: { color: '#94a3b8' } }
+                    },
+                    scales: {
+                        y: { 
+                            beginAtZero: true,
+                            ticks: { color: '#94a3b8' },
+                            grid: { color: '#334155' }
+                        },
+                        x: { 
+                            ticks: { color: '#94a3b8' },
+                            grid: { color: '#334155' }
+                        }
+                    }
+                }
+            });
+            
+            // Gráfico de Pizza
+            const pieCtx = document.getElementById('pieChart').getContext('2d');
+            pieChart = new Chart(pieCtx, {
+                type: 'pie',
+                data: {
+                    labels: nomesSetores,
+                    datasets: [{
+                        data: quantidadesPorSetor,
+                        backgroundColor: cores,
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: { 
+                            position: 'bottom',
+                            labels: { color: '#94a3b8' }
+                        }
+                    }
+                }
+            });
+            
+            // Top 10 Itens
+            const todosItens = [];
+            for (const setor of setores) {
+                estoque[setor].forEach(item => {
+                    todosItens.push({
+                        nome: item.nome,
+                        quantidade: item.quantidade,
+                        setor: setor
+                    });
+                });
+            }
+            
+            const top10 = todosItens.sort((a, b) => b.quantidade - a.quantidade).slice(0, 10);
+            
+            if (topItemsChart) topItemsChart.destroy();
+            
+            const topCtx = document.getElementById('topItemsChart').getContext('2d');
+            topItemsChart = new Chart(topCtx, {
+                type: 'bar',
+                data: {
+                    labels: top10.map(i => i.nome.length > 20 ? i.nome.substring(0,20)+'...' : i.nome),
+                    datasets: [{
+                        label: 'Quantidade',
+                        data: top10.map(i => i.quantidade),
+                        backgroundColor: '#3b82f6',
+                        borderRadius: 8
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    indexAxis: 'y',
+                    plugins: {
+                        legend: { labels: { color: '#94a3b8' } }
+                    },
+                    scales: {
+                        x: { 
+                            ticks: { color: '#94a3b8' },
+                            grid: { color: '#334155' }
+                        },
+                        y: { 
+                            ticks: { color: '#94a3b8' },
+                            grid: { color: '#334155' }
+                        }
+                    }
+                }
+            });
+        }
+
+        function atualizarRanking() {
+            const container = document.getElementById('rankingList');
+            if (!container) return;
+            
+            const setores = ['almoxarifado', 'secretaria', 'atelie', 'limpeza', 'cozinha'];
+            const nomesSetores = { almoxarifado: 'Almoxarifado', secretaria: 'Secretaria', atelie: 'Ateliê', limpeza: 'Limpeza', cozinha: 'Cozinha' };
+            
+            const todosItens = [];
+            for (const setor of setores) {
+                estoque[setor].forEach(item => {
+                    todosItens.push({
+                        nome: item.nome,
+                        quantidade: item.quantidade,
+                        setor: nomesSetores[setor]
+                    });
+                });
+            }
+            
+            const top10 = todosItens.sort((a, b) => b.quantidade - a.quantidade).slice(0, 10);
+            
+            if (top10.length === 0) {
+                container.innerHTML = '<div class="empty-state"><i class="fas fa-chart-simple"></i><p>Nenhum item cadastrado</p></div>';
+                return;
+            }
+            
+            container.innerHTML = top10.map((item, index) => `
+                <div class="top-item-row">
+                    <div class="top-item-rank">${index + 1}</div>
+                    <div class="top-item-info">
+                        <div class="top-item-name">${escapeHtml(item.nome)}</div>
+                        <div class="top-item-setor">${item.setor}</div>
+                    </div>
+                    <div class="top-item-qty">${item.quantidade} unid.</div>
+                </div>
+            `).join('');
+        }
+
+        function atualizarLowStock() {
+            const container = document.getElementById('lowStockList');
+            if (!container) return;
+            
+            const setores = ['almoxarifado', 'secretaria', 'atelie', 'limpeza', 'cozinha'];
+            const nomesSetores = { almoxarifado: 'Almoxarifado', secretaria: 'Secretaria', atelie: 'Ateliê', limpeza: 'Limpeza', cozinha: 'Cozinha' };
+            
+            const itensCriticos = [];
+            for (const setor of setores) {
+                estoque[setor].forEach(item => {
+                    if (item.quantidade <= 10) {
+                        itensCriticos.push({
+                            nome: item.nome,
+                            quantidade: item.quantidade,
+                            setor: nomesSetores[setor],
+                            unidade: item.unidade
+                        });
+                    }
+                });
+            }
+            
+            if (itensCriticos.length === 0) {
+                container.innerHTML = '<div class="empty-state"><i class="fas fa-check-circle"></i><p>Nenhum item com estoque crítico!</p><small>Todos os itens estão acima de 10 unidades</small></div>';
+                return;
+            }
+            
+            container.innerHTML = `
+                <div style="display: flex; flex-direction: column; gap: 8px;">
+                    ${itensCriticos.map(item => `
+                        <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px; background: rgba(239,68,68,0.1); border-radius: 16px; border-left: 3px solid #ef4444;">
+                            <div>
+                                <div style="color: white; font-weight: 500;">${escapeHtml(item.nome)}</div>
+                                <div style="color: #64748b; font-size: 12px;">${item.setor}</div>
+                            </div>
+                            <div style="text-align: right;">
+                                <div style="color: #fca5a5; font-weight: 700; font-size: 18px;">${item.quantidade} ${item.unidade}</div>
+                                <div class="badge-low-stock">CRÍTICO</div>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        }
+
         // ==================== FUNÇÕES DE INTERFACE ====================
         function atualizarDashboard() {
             const dashboardDiv = document.getElementById('dashboardCards');
             const setores = [
-                { nome: 'Almoxarifado', chave: 'almoxarifado', icone: 'fa-boxes', cor: '#1e3c72' },
-                { nome: 'Secretaria', chave: 'secretaria', icone: 'fa-building', cor: '#48bb78' },
-                { nome: 'Ateliê', chave: 'atelie', icone: 'fa-palette', cor: '#ed8936' }
+                { nome: 'Almoxarifado', chave: 'almoxarifado', icone: 'fa-boxes', cor: '#3b82f6' },
+                { nome: 'Secretaria', chave: 'secretaria', icone: 'fa-building', cor: '#10b981' },
+                { nome: 'Ateliê', chave: 'atelie', icone: 'fa-palette', cor: '#f59e0b' },
+                { nome: 'Limpeza', chave: 'limpeza', icone: 'fa-broom', cor: '#06b6d4' },
+                { nome: 'Cozinha', chave: 'cozinha', icone: 'fa-utensils', cor: '#ec4899' }
             ];
 
             dashboardDiv.innerHTML = setores.map(setor => {
                 const items = estoque[setor.chave];
                 const totalItems = items.reduce((sum, item) => sum + item.quantidade, 0);
-                const qtdTipos = items.length;
 
                 return `
                     <div class="stock-card" onclick="abrirModalSetor('${setor.chave}', '${setor.nome}')">
@@ -1078,19 +1964,19 @@
                             <h3>${setor.nome}</h3>
                             <i class="fas ${setor.icone}" style="color: ${setor.cor}"></i>
                         </div>
-                        <div class="total-items">${totalItems} ${totalItems === 1 ? 'item' : 'itens'}</div>
-                        <div style="color: #718096; margin-bottom: 10px;">
-                            <i class="fas fa-tag"></i> ${qtdTipos} ${qtdTipos === 1 ? 'tipo cadastrado' : 'tipos cadastrados'}
+                        <div class="total-items">${totalItems}</div>
+                        <div style="color: #94a3b8; margin-bottom: 12px; font-size: 13px;">
+                            <i class="fas fa-tag"></i> ${items.length} tipos
                         </div>
                         <div class="items-list">
                             ${items.length === 0 ? 
-                                '<div class="empty-state"><i class="fas fa-inbox"></i><p>Nenhum item no estoque</p><small>Clique para adicionar itens</small></div>' :
-                                items.map(item => `
+                                '<div class="empty-state"><i class="fas fa-inbox"></i><p>Sem itens</p><small>Clique para adicionar</small></div>' :
+                                items.slice(0, 5).map(item => `
                                     <div class="item-row" onclick="event.stopPropagation(); abrirModalMovimentacao('${setor.chave}', ${item.id})">
-                                        <span class="item-name">${escapeHtml(item.nome)}</span>
+                                        <span class="item-name">${escapeHtml(item.nome.length > 30 ? item.nome.substring(0,30)+'...' : item.nome)}</span>
                                         <span class="item-qty">${item.quantidade} ${item.unidade}</span>
                                     </div>
-                                `).join('')
+                                `).join('') + (items.length > 5 ? '<div style="text-align:center; padding:8px; color:#3b82f6; font-size:12px;">+ ' + (items.length-5) + ' itens</div>' : '')
                             }
                         </div>
                     </div>
@@ -1103,23 +1989,19 @@
             if (!container) return;
             
             if (catalogoItens.length === 0) {
-                container.innerHTML = '<div class="empty-state"><i class="fas fa-database"></i><p>Nenhum item cadastrado</p><small>Cadastre seu primeiro item acima</small></div>';
+                container.innerHTML = '<div class="empty-state"><i class="fas fa-database"></i><p>Nenhum item cadastrado</p></div>';
                 return;
             }
 
             container.innerHTML = catalogoItens.map(item => `
                 <div class="catalogo-item">
                     <div class="catalogo-item-info">
-                        <p><strong>${escapeHtml(item.nome)}</strong></p>
-                        <p style="color: #1e3c72; font-size: 14px;">Unidade: ${item.unidade}</p>
+                        <p>${escapeHtml(item.nome)}</p>
+                        <p>${item.unidade}</p>
                     </div>
                     <div class="catalogo-item-actions">
-                        <button onclick="editarItem(${item.id})" class="btn btn-primary" style="padding: 8px 16px;">
-                            <i class="fas fa-edit"></i> Editar
-                        </button>
-                        <button onclick="excluirItem(${item.id})" class="btn btn-danger" style="padding: 8px 16px;">
-                            <i class="fas fa-trash"></i> Excluir
-                        </button>
+                        <button onclick="editarItem(${item.id})" class="btn btn-primary" style="padding: 8px 16px;"><i class="fas fa-edit"></i> Editar</button>
+                        <button onclick="excluirItem(${item.id})" class="btn btn-danger" style="padding: 8px 16px;"><i class="fas fa-trash"></i> Excluir</button>
                     </div>
                 </div>
             `).join('');
@@ -1130,24 +2012,29 @@
             if (!container) return;
 
             if (historico.length === 0) {
-                container.innerHTML = '<div class="empty-state"><i class="fas fa-history"></i><p>Nenhuma movimentação registrada</p><small>As movimentações aparecerão aqui</small></div>';
+                container.innerHTML = '<div class="empty-state"><i class="fas fa-history"></i><p>Nenhuma movimentação</p></div>';
                 return;
             }
 
             container.innerHTML = historico.map(reg => {
                 const dataFormatada = new Date(reg.created_at).toLocaleString('pt-BR');
+                let nomeSetor = reg.setor === 'almoxarifado' ? 'Almoxarifado' : reg.setor === 'secretaria' ? 'Secretaria' : reg.setor === 'atelie' ? 'Ateliê' : reg.setor === 'limpeza' ? 'Limpeza' : 'Cozinha';
                 return `
                     <div class="historico-item ${reg.tipo === 'adicao' ? 'adicao' : 'baixa'}">
-                        <div style="display: flex; justify-content: space-between; align-items: start; flex-wrap: wrap;">
+                        <div class="historico-header">
                             <div>
-                                <strong>${reg.tipo === 'adicao' ? '➕ ADIÇÃO' : '➖ BAIXA'}</strong>
-                                <span style="color: #718096; font-size: 12px; margin-left: 10px;">${dataFormatada}</span>
+                                <strong style="color: white;">${reg.tipo === 'adicao' ? '➕ ADIÇÃO' : '➖ BAIXA'}</strong>
+                                <span style="color: #64748b; font-size: 11px; margin-left: 8px;">${dataFormatada}</span>
                             </div>
-                            <span class="badge">${reg.setor === 'almoxarifado' ? 'Almoxarifado' : reg.setor === 'secretaria' ? 'Secretaria' : 'Ateliê'}</span>
+                            <span class="badge">${nomeSetor}</span>
                         </div>
-                        <p style="margin-top: 10px;"><strong>Item:</strong> ${escapeHtml(reg.item_nome)}</p>
-                        <p><strong>Quantidade:</strong> ${reg.quantidade} ${reg.unidade}</p>
-                        ${reg.motivo ? `<p><strong>Motivo:</strong> ${escapeHtml(reg.motivo)}</p>` : ''}
+                        <p style="margin-top: 10px; color: #e2e8f0;"><strong>${escapeHtml(reg.item_nome)}</strong></p>
+                        <p style="color: #94a3b8; font-size: 13px;">Quantidade: ${reg.quantidade} ${reg.unidade}</p>
+                        ${reg.motivo ? `<p style="color: #64748b; font-size: 12px; margin-top: 5px;"><i class="fas fa-comment"></i> ${escapeHtml(reg.motivo)}</p>` : ''}
+                        <div class="historico-actions">
+                            <button onclick="editarHistoricoItem(${reg.id})" class="btn btn-warning" style="padding: 6px 12px;"><i class="fas fa-edit"></i> Editar</button>
+                            <button onclick="excluirHistoricoItem(${reg.id})" class="btn btn-danger" style="padding: 6px 12px;"><i class="fas fa-trash"></i> Excluir</button>
+                        </div>
                     </div>
                 `;
             }).join('');
@@ -1165,74 +2052,181 @@
             );
             
             if (historicoFiltrado.length === 0) {
-                container.innerHTML = '<div class="empty-state"><i class="fas fa-search"></i><p>Nenhum registro encontrado</p><small>Tente outro termo de busca</small></div>';
+                container.innerHTML = '<div class="empty-state"><i class="fas fa-search"></i><p>Nada encontrado</p></div>';
                 return;
             }
             
             container.innerHTML = historicoFiltrado.map(reg => {
                 const dataFormatada = new Date(reg.created_at).toLocaleString('pt-BR');
+                let nomeSetor = reg.setor === 'almoxarifado' ? 'Almoxarifado' : reg.setor === 'secretaria' ? 'Secretaria' : reg.setor === 'atelie' ? 'Ateliê' : reg.setor === 'limpeza' ? 'Limpeza' : 'Cozinha';
                 return `
                     <div class="historico-item ${reg.tipo === 'adicao' ? 'adicao' : 'baixa'}">
-                        <div style="display: flex; justify-content: space-between; align-items: start; flex-wrap: wrap;">
+                        <div class="historico-header">
                             <div>
-                                <strong>${reg.tipo === 'adicao' ? '➕ ADIÇÃO' : '➖ BAIXA'}</strong>
-                                <span style="color: #718096; font-size: 12px; margin-left: 10px;">${dataFormatada}</span>
+                                <strong style="color: white;">${reg.tipo === 'adicao' ? '➕ ADIÇÃO' : '➖ BAIXA'}</strong>
+                                <span style="color: #64748b; font-size: 11px; margin-left: 8px;">${dataFormatada}</span>
                             </div>
-                            <span class="badge">${reg.setor === 'almoxarifado' ? 'Almoxarifado' : reg.setor === 'secretaria' ? 'Secretaria' : 'Ateliê'}</span>
+                            <span class="badge">${nomeSetor}</span>
                         </div>
-                        <p style="margin-top: 10px;"><strong>Item:</strong> ${escapeHtml(reg.item_nome)}</p>
-                        <p><strong>Quantidade:</strong> ${reg.quantidade} ${reg.unidade}</p>
-                        ${reg.motivo ? `<p><strong>Motivo:</strong> ${escapeHtml(reg.motivo)}</p>` : ''}
+                        <p style="margin-top: 10px; color: #e2e8f0;"><strong>${escapeHtml(reg.item_nome)}</strong></p>
+                        <p style="color: #94a3b8; font-size: 13px;">Quantidade: ${reg.quantidade} ${reg.unidade}</p>
+                        ${reg.motivo ? `<p style="color: #64748b; font-size: 12px; margin-top: 5px;"><i class="fas fa-comment"></i> ${escapeHtml(reg.motivo)}</p>` : ''}
+                        <div class="historico-actions">
+                            <button onclick="editarHistoricoItem(${reg.id})" class="btn btn-warning" style="padding: 6px 12px;"><i class="fas fa-edit"></i> Editar</button>
+                            <button onclick="excluirHistoricoItem(${reg.id})" class="btn btn-danger" style="padding: 6px 12px;"><i class="fas fa-trash"></i> Excluir</button>
+                        </div>
                     </div>
                 `;
             }).join('');
         }
 
-        // ==================== FUNÇÕES DE MODAL E MOVIMENTAÇÃO ====================
+        function editarHistoricoItem(id) {
+            const item = historico.find(h => h.id === id);
+            if (!item) return;
+            
+            currentHistoricoItem = item;
+            const modalBody = document.getElementById('editHistoricoModalBody');
+            
+            const setores = [
+                { value: 'almoxarifado', label: 'Almoxarifado' },
+                { value: 'secretaria', label: 'Secretaria' },
+                { value: 'atelie', label: 'Ateliê' },
+                { value: 'limpeza', label: 'Limpeza' },
+                { value: 'cozinha', label: 'Cozinha' }
+            ];
+            
+            modalBody.innerHTML = `
+                <form id="editHistoricoForm">
+                    <div class="form-group">
+                        <label>Tipo:</label>
+                        <select id="editHistoricoTipo">
+                            <option value="adicao" ${item.tipo === 'adicao' ? 'selected' : ''}>➕ Adição</option>
+                            <option value="baixa" ${item.tipo === 'baixa' ? 'selected' : ''}>➖ Baixa</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Setor:</label>
+                        <select id="editHistoricoSetor">
+                            ${setores.map(s => `<option value="${s.value}" ${item.setor === s.value ? 'selected' : ''}>${s.label}</option>`).join('')}
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Nome do Item:</label>
+                        <input type="text" id="editHistoricoItemNome" value="${escapeHtml(item.item_nome)}" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Quantidade:</label>
+                        <input type="number" id="editHistoricoQuantidade" value="${item.quantidade}" min="1" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Unidade:</label>
+                        <input type="text" id="editHistoricoUnidade" value="${item.unidade}" placeholder="Ex: CX, UNID, PCTE" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Motivo/Justificativa:</label>
+                        <textarea id="editHistoricoMotivo" rows="3">${item.motivo || ''}</textarea>
+                    </div>
+                    <div style="display: flex; gap: 12px; margin-top: 20px;">
+                        <button type="submit" id="salvarEditHistoricoBtn" class="btn btn-primary" style="flex:1;">Salvar Alterações</button>
+                        <button type="button" onclick="fecharEditHistoricoModal()" class="btn btn-danger" style="flex:1;">Cancelar</button>
+                    </div>
+                </form>
+            `;
+            
+            document.getElementById('editHistoricoModal').style.display = 'flex';
+            
+            document.getElementById('editHistoricoForm').addEventListener('submit', async function(e) {
+                e.preventDefault();
+                const btn = document.getElementById('salvarEditHistoricoBtn');
+                salvarTextoOriginalBotao(btn);
+                desabilitarBotao(btn, 'Salvando...');
+                
+                const novoTipo = document.getElementById('editHistoricoTipo').value;
+                const novoSetor = document.getElementById('editHistoricoSetor').value;
+                const novoItemNome = document.getElementById('editHistoricoItemNome').value.trim();
+                const novaQuantidade = parseInt(document.getElementById('editHistoricoQuantidade').value);
+                const novaUnidade = document.getElementById('editHistoricoUnidade').value.trim();
+                const novoMotivo = document.getElementById('editHistoricoMotivo').value.trim() || null;
+                
+                if (!novoItemNome || !novaQuantidade || !novaUnidade) {
+                    mostrarAlerta('Preencha todos os campos obrigatórios!', 'error');
+                    btn.disabled = false;
+                    return;
+                }
+                
+                const sucesso = await atualizarHistoricoItem(id, {
+                    tipo: novoTipo,
+                    setor: novoSetor,
+                    item_nome: novoItemNome,
+                    quantidade: novaQuantidade,
+                    unidade: novaUnidade,
+                    motivo: novoMotivo
+                });
+                
+                if (sucesso) {
+                    mostrarAlerta('✅ Lançamento atualizado e estoque ajustado com sucesso!', 'success');
+                    fecharEditHistoricoModal();
+                }
+            });
+        }
+
+        function excluirHistoricoItem(id) {
+            if (confirm('⚠️ Tem certeza que deseja excluir este lançamento?\n\nIsso também ajustará o estoque automaticamente!')) {
+                excluirHistoricoItemDB(id);
+            }
+        }
+
         function abrirModalSetor(setor, nomeSetor) {
+            if (isProcessing) {
+                mostrarAlerta('Aguarde um momento...', 'warning');
+                return;
+            }
+            
             currentSetor = setor;
             const modalBody = document.getElementById('modalBody');
             
-            document.getElementById('modalTitle').innerHTML = `<i class="fas fa-${setor === 'almoxarifado' ? 'boxes' : setor === 'secretaria' ? 'building' : 'palette'}"></i> ${nomeSetor} - Gerenciar Estoque`;
+            let icone = 'boxes';
+            if (setor === 'almoxarifado') icone = 'boxes';
+            else if (setor === 'secretaria') icone = 'building';
+            else if (setor === 'atelie') icone = 'palette';
+            else if (setor === 'limpeza') icone = 'broom';
+            else if (setor === 'cozinha') icone = 'utensils';
+            
+            document.getElementById('modalTitle').innerHTML = `<i class="fas fa-${icone}"></i> ${nomeSetor}`;
             
             const itensNoSetor = estoque[setor].map(item => item.id);
             const itensDisponiveis = catalogoItens.filter(item => !itensNoSetor.includes(item.id));
             
             modalBody.innerHTML = `
-                <div class="add-item-section">
-                    <h4 style="margin-bottom: 15px;"><i class="fas fa-plus-circle"></i> Adicionar Item ao Estoque</h4>
-                    <div class="input-group">
-                        <label>Selecione um item do catálogo:</label>
-                        <select id="selectItemAdicionar" style="width: 100%; padding: 10px; border: 2px solid #e2e8f0; border-radius: 8px;">
-                            <option value="">-- Selecione um item --</option>
-                            ${itensDisponiveis.map(item => `<option value="${item.id}">${escapeHtml(item.nome)} (${item.unidade})</option>`).join('')}
-                        </select>
+                <div class="modal-section">
+                    <h4><i class="fas fa-plus-circle"></i> Adicionar Item</h4>
+                    <select id="selectItemAdicionar" class="modal-select">
+                        <option value="">-- Selecione um item --</option>
+                        ${itensDisponiveis.map(item => `<option value="${item.id}">${escapeHtml(item.nome)} (${item.unidade})</option>`).join('')}
+                    </select>
+                    <div style="display: flex; gap: 12px;">
+                        <input type="number" id="quantidadeAdicionar" class="modal-input" min="1" value="1" placeholder="Quantidade">
+                        <button id="adicionarItemBtn" onclick="adicionarItemAoSetor()" class="btn btn-primary"><i class="fas fa-plus"></i> Adicionar</button>
                     </div>
-                    <div class="input-group">
-                        <label>Quantidade:</label>
-                        <input type="number" id="quantidadeAdicionar" min="1" value="1">
-                    </div>
-                    <button onclick="adicionarItemAoSetor()" class="btn btn-primary" style="width: 100%;">
-                        <i class="fas fa-plus"></i> Adicionar ao Estoque
-                    </button>
                 </div>
-                <hr>
-                <div class="search-box">
-                    <i class="fas fa-search"></i>
-                    <input type="text" id="buscarItem" placeholder="🔍 Buscar item no estoque..." onkeyup="filtrarItensSetor()">
+                
+                <div class="search-box" style="margin-bottom: 16px;">
+                    <input type="text" id="buscarItem" class="modal-search" placeholder="🔍 Buscar item no estoque..." onkeyup="filtrarItensSetor()">
                 </div>
-                <div style="margin-bottom: 15px;">
-                    <span class="badge"><i class="fas fa-boxes"></i> Itens no estoque: ${estoque[setor].length}</span>
-                    <span class="badge" style="margin-left: 10px;"><i class="fas fa-chart-line"></i> Total unidades: ${estoque[setor].reduce((sum, i) => sum + i.quantidade, 0)}</span>
+                
+                <div style="margin-bottom: 16px;">
+                    <span class="badge-count"><i class="fas fa-boxes"></i> Itens: ${estoque[setor].length}</span>
+                    <span class="badge-count" style="margin-left: 10px;"><i class="fas fa-chart-line"></i> Total: ${estoque[setor].reduce((sum, i) => sum + i.quantidade, 0)}</span>
                 </div>
-                <div id="listaItensSetor" style="max-height: 400px; overflow-y: auto;">
+                
+                <div id="listaItensSetor">
                     ${estoque[setor].length === 0 ? 
-                        '<div class="empty-state"><i class="fas fa-inbox"></i><p>Nenhum item no estoque</p><small>Adicione itens usando o formulário acima</small></div>' :
+                        '<div class="empty-state"><i class="fas fa-inbox"></i><p>Estoque vazio</p><small>Adicione itens acima</small></div>' :
                         estoque[setor].map(item => `
-                            <div class="item-detail" onclick="abrirModalMovimentacao('${setor}', ${item.id})">
-                                <p><strong>${escapeHtml(item.nome)}</strong></p>
-                                <p style="color: #48bb78; font-size: 20px; font-weight: bold;">${item.quantidade} ${item.unidade}</p>
-                                <small style="color: #718096;">Clique para movimentar</small>
+                            <div class="modal-item-detail" onclick="abrirModalMovimentacao('${setor}', ${item.id})">
+                                <div class="modal-item-name">${escapeHtml(item.nome)}</div>
+                                <div class="modal-item-qty">${item.quantidade} ${item.unidade}</div>
+                                <div class="modal-item-small">Clique para movimentar</div>
                             </div>
                         `).join('')
                     }
@@ -1243,25 +2237,38 @@
         }
 
         async function adicionarItemAoSetor() {
+            const btn = document.getElementById('adicionarItemBtn');
+            salvarTextoOriginalBotao(btn);
+            desabilitarBotao(btn, 'Adicionando...');
+            
             const itemId = parseInt(document.getElementById('selectItemAdicionar').value);
             const quantidade = parseInt(document.getElementById('quantidadeAdicionar').value);
             
             if (!itemId) {
-                mostrarAlerta('Por favor, selecione um item!', 'error');
+                mostrarAlerta('Selecione um item!', 'error');
+                btn.disabled = false;
+                if (btn.originalHTML) btn.innerHTML = btn.originalHTML;
                 return;
             }
-            
             if (!quantidade || quantidade <= 0) {
-                mostrarAlerta('Por favor, informe uma quantidade válida!', 'error');
+                mostrarAlerta('Quantidade válida!', 'error');
+                btn.disabled = false;
+                if (btn.originalHTML) btn.innerHTML = btn.originalHTML;
                 return;
             }
             
             const itemCatalogo = catalogoItens.find(i => i.id === itemId);
-            if (!itemCatalogo) return;
+            if (!itemCatalogo) {
+                btn.disabled = false;
+                if (btn.originalHTML) btn.innerHTML = btn.originalHTML;
+                return;
+            }
             
             const itemExistente = estoque[currentSetor].find(i => i.id === itemId);
             if (itemExistente) {
-                mostrarAlerta('Este item já existe neste setor! Use a movimentação para adicionar mais unidades.', 'error');
+                mostrarAlerta('Item já existe neste setor!', 'error');
+                btn.disabled = false;
+                if (btn.originalHTML) btn.innerHTML = btn.originalHTML;
                 return;
             }
             
@@ -1275,13 +2282,18 @@
                     quantidade: quantidade
                 });
                 
-                await registrarHistorico('adicao', currentSetor, itemCatalogo.nome, quantidade, itemCatalogo.unidade, 'Adição inicial ao estoque');
+                let nomeSetorExibicao = currentSetor === 'almoxarifado' ? 'Almoxarifado' : currentSetor === 'secretaria' ? 'Secretaria' : currentSetor === 'atelie' ? 'Ateliê' : currentSetor === 'limpeza' ? 'Limpeza' : 'Cozinha';
+                await registrarHistorico('adicao', currentSetor, itemCatalogo.nome, quantidade, itemCatalogo.unidade, `Adicionado ao ${nomeSetorExibicao}`);
                 
                 atualizarDashboard();
-                abrirModalSetor(currentSetor, currentSetor === 'almoxarifado' ? 'Almoxarifado' : currentSetor === 'secretaria' ? 'Secretaria' : 'Ateliê');
-                mostrarAlerta(`✅ ${quantidade} ${itemCatalogo.unidade} de "${itemCatalogo.nome.substring(0, 50)}" adicionado ao estoque!`, 'success');
+                atualizarAnalytics();
+                fecharModal();
+                mostrarAlerta(`✅ ${quantidade} ${itemCatalogo.unidade} adicionado!`, 'success');
             } catch (error) {
-                mostrarAlerta('Erro ao adicionar item ao estoque!', 'error');
+                mostrarAlerta('Erro ao adicionar!', 'error');
+            } finally {
+                btn.disabled = false;
+                if (btn.originalHTML) btn.innerHTML = btn.originalHTML;
             }
         }
 
@@ -1294,20 +2306,25 @@
             const itemsFiltrados = items.filter(item => item.nome.toLowerCase().includes(termo));
             
             if (itemsFiltrados.length === 0) {
-                container.innerHTML = '<div class="empty-state"><i class="fas fa-search"></i><p>Nenhum item encontrado</p><small>Tente outro termo de busca</small></div>';
+                container.innerHTML = '<div class="empty-state"><i class="fas fa-search"></i><p>Nada encontrado</p></div>';
                 return;
             }
             
             container.innerHTML = itemsFiltrados.map(item => `
-                <div class="item-detail" onclick="abrirModalMovimentacao('${currentSetor}', ${item.id})">
-                    <p><strong>${escapeHtml(item.nome)}</strong></p>
-                    <p style="color: #48bb78; font-size: 20px; font-weight: bold;">${item.quantidade} ${item.unidade}</p>
-                    <small style="color: #718096;">Clique para movimentar</small>
+                <div class="modal-item-detail" onclick="abrirModalMovimentacao('${currentSetor}', ${item.id})">
+                    <div class="modal-item-name">${escapeHtml(item.nome)}</div>
+                    <div class="modal-item-qty">${item.quantidade} ${item.unidade}</div>
+                    <div class="modal-item-small">Clique para movimentar</div>
                 </div>
             `).join('');
         }
 
         function abrirModalMovimentacao(setor, itemId) {
+            if (isProcessing) {
+                mostrarAlerta('Aguarde um momento...', 'warning');
+                return;
+            }
+            
             const item = estoque[setor].find(i => i.id === itemId);
             if (!item) return;
             
@@ -1317,33 +2334,31 @@
             document.getElementById('modalTitle').innerHTML = `<i class="fas fa-exchange-alt"></i> Movimentar Item`;
             
             modalBody.innerHTML = `
-                <div class="item-detail" style="cursor: default;">
-                    <p><strong><i class="fas fa-tag"></i> Item:</strong></p>
-                    <p style="font-size: 16px; margin-top: 5px;">${escapeHtml(item.nome)}</p>
-                    <p style="margin-top: 15px;"><strong><i class="fas fa-chart-line"></i> Quantidade Atual:</strong></p>
-                    <p style="font-size: 28px; font-weight: bold; color: #1e3c72;">${item.quantidade} ${item.unidade}</p>
+                <div class="movement-item-card">
+                    <p><i class="fas fa-tag"></i> Item</p>
+                    <div class="item-name">${escapeHtml(item.nome)}</div>
+                    <p style="margin-top: 12px;"><i class="fas fa-chart-line"></i> Quantidade Atual</p>
+                    <div class="item-qty-large">${item.quantidade} ${item.unidade}</div>
                 </div>
-                <div class="movement-form">
-                    <h4 style="margin-bottom: 15px;"><i class="fas fa-arrow-right"></i> Realizar Movimentação</h4>
-                    <div class="input-group">
-                        <label>Tipo de Movimentação:</label>
-                        <select id="tipoMovimentacao" style="width: 100%; padding: 10px; border: 2px solid #e2e8f0; border-radius: 8px;">
-                            <option value="adicionar">➕ Adicionar ao Estoque</option>
-                            <option value="baixa">➖ Dar Baixa (Retirar do Estoque)</option>
-                        </select>
-                    </div>
-                    <div class="input-group">
-                        <label>Quantidade:</label>
-                        <input type="number" id="quantidadeMovimentacao" min="1" step="1" placeholder="Digite a quantidade">
-                    </div>
-                    <div class="input-group" id="motivoGroup" style="display: none;">
-                        <label>Motivo/Justificativa:</label>
-                        <textarea id="motivoMovimentacao" rows="3" placeholder="Ex: Utilizado em sala de aula, Distribuído para professores, Consumo interno..."></textarea>
-                    </div>
-                    <div class="movement-buttons">
-                        <button onclick="realizarMovimentacao()" class="btn btn-primary">Confirmar Movimentação</button>
-                        <button onclick="fecharModal()" class="btn btn-warning">Cancelar</button>
-                    </div>
+                
+                <div class="form-group">
+                    <label>Tipo de Movimentação:</label>
+                    <select id="tipoMovimentacao">
+                        <option value="adicionar">➕ Adicionar ao Estoque</option>
+                        <option value="baixa">➖ Dar Baixa (Retirar)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Quantidade:</label>
+                    <input type="number" id="quantidadeMovimentacao" min="1" placeholder="Digite a quantidade">
+                </div>
+                <div class="form-group" id="motivoGroup" style="display: none;">
+                    <label>Motivo/Justificativa:</label>
+                    <textarea id="motivoMovimentacao" rows="3" placeholder="Ex: Utilizado em sala de aula, Distribuído para professores..."></textarea>
+                </div>
+                <div style="display: flex; gap: 12px; margin-top: 20px;">
+                    <button id="confirmarMovimentacaoBtn" onclick="realizarMovimentacao()" class="btn btn-primary" style="flex:1;">Confirmar</button>
+                    <button onclick="fecharModal()" class="btn btn-danger" style="flex:1;">Cancelar</button>
                 </div>
             `;
             
@@ -1356,7 +2371,15 @@
         }
 
         async function realizarMovimentacao() {
-            if (!currentItemContext) return;
+            const btn = document.getElementById('confirmarMovimentacaoBtn');
+            salvarTextoOriginalBotao(btn);
+            desabilitarBotao(btn, 'Processando...');
+            
+            if (!currentItemContext) {
+                btn.disabled = false;
+                if (btn.originalHTML) btn.innerHTML = btn.originalHTML;
+                return;
+            }
             
             const tipo = document.getElementById('tipoMovimentacao').value;
             const quantidade = parseInt(document.getElementById('quantidadeMovimentacao').value);
@@ -1364,11 +2387,14 @@
             
             if (!quantidade || quantidade <= 0) {
                 mostrarAlerta('Por favor, informe uma quantidade válida!', 'error');
+                btn.disabled = false;
+                if (btn.originalHTML) btn.innerHTML = btn.originalHTML;
                 return;
             }
-            
             if (tipo === 'baixa' && (!motivo || motivo === '')) {
                 mostrarAlerta('Por favor, informe o motivo da baixa!', 'error');
+                btn.disabled = false;
+                if (btn.originalHTML) btn.innerHTML = btn.originalHTML;
                 return;
             }
             
@@ -1381,7 +2407,8 @@
                     item.quantidade = novaQuantidade;
                     await registrarHistorico('adicao', currentItemContext.setor, item.nome, quantidade, item.unidade, 'Adição ao estoque');
                     atualizarDashboard();
-                    mostrarAlerta(`✅ Adicionado ${quantidade} ${item.unidade} ao item "${item.nome.substring(0, 50)}"`, 'success');
+                    atualizarAnalytics();
+                    mostrarAlerta(`✅ Adicionado ${quantidade} ${item.unidade}`, 'success');
                     fecharModal();
                 } catch (error) {
                     mostrarAlerta('Erro ao realizar movimentação!', 'error');
@@ -1389,6 +2416,8 @@
             } else {
                 if (item.quantidade < quantidade) {
                     mostrarAlerta(`❌ Quantidade insuficiente! Disponível: ${item.quantidade} ${item.unidade}`, 'error');
+                    btn.disabled = false;
+                    if (btn.originalHTML) btn.innerHTML = btn.originalHTML;
                     return;
                 }
                 const novaQuantidade = item.quantidade - quantidade;
@@ -1397,30 +2426,32 @@
                     item.quantidade = novaQuantidade;
                     await registrarHistorico('baixa', currentItemContext.setor, item.nome, quantidade, item.unidade, motivo);
                     atualizarDashboard();
-                    mostrarAlerta(`📦 Dada baixa em ${quantidade} ${item.unidade} do item "${item.nome.substring(0, 50)}"`, 'success');
+                    atualizarAnalytics();
+                    mostrarAlerta(`📦 Dada baixa em ${quantidade} ${item.unidade}`, 'success');
                     fecharModal();
                 } catch (error) {
                     mostrarAlerta('Erro ao realizar movimentação!', 'error');
                 }
             }
+            
+            btn.disabled = false;
+            if (btn.originalHTML) btn.innerHTML = btn.originalHTML;
         }
 
         async function editarItem(itemId) {
             const item = catalogoItens.find(i => i.id === itemId);
             if (!item) return;
             
-            currentEditItem = item;
             const modalBody = document.getElementById('editModalBody');
-            
             modalBody.innerHTML = `
                 <form id="editForm">
                     <div class="form-group">
-                        <label>Nome/Descrição do Item:</label>
-                        <textarea id="editNome" rows="3" required>${escapeHtml(item.nome)}</textarea>
+                        <label>Nome/Descrição:</label>
+                        <textarea id="editNome" rows="3">${escapeHtml(item.nome)}</textarea>
                     </div>
                     <div class="form-group">
-                        <label>Unidade de Medida:</label>
-                        <select id="editUnidade" required>
+                        <label>Unidade:</label>
+                        <select id="editUnidade">
                             <option value="CX" ${item.unidade === 'CX' ? 'selected' : ''}>CX (Caixa)</option>
                             <option value="UNID" ${item.unidade === 'UNID' ? 'selected' : ''}>UNID (Unidade)</option>
                             <option value="PCTE" ${item.unidade === 'PCTE' ? 'selected' : ''}>PCTE (Pacote)</option>
@@ -1429,9 +2460,9 @@
                             <option value="RESMA" ${item.unidade === 'RESMA' ? 'selected' : ''}>RESMA (Resma)</option>
                         </select>
                     </div>
-                    <div class="movement-buttons">
-                        <button type="submit" class="btn btn-primary">Salvar Alterações</button>
-                        <button type="button" onclick="fecharEditModal()" class="btn btn-warning">Cancelar</button>
+                    <div style="display: flex; gap: 12px; margin-top: 20px;">
+                        <button type="submit" id="salvarEditItemBtn" class="btn btn-primary" style="flex:1;">Salvar</button>
+                        <button type="button" onclick="fecharEditModal()" class="btn btn-danger" style="flex:1;">Cancelar</button>
                     </div>
                 </form>
             `;
@@ -1440,11 +2471,16 @@
             
             document.getElementById('editForm').addEventListener('submit', async function(e) {
                 e.preventDefault();
+                const btn = document.getElementById('salvarEditItemBtn');
+                salvarTextoOriginalBotao(btn);
+                desabilitarBotao(btn, 'Salvando...');
+                
                 const novoNome = document.getElementById('editNome').value.trim();
                 const novaUnidade = document.getElementById('editUnidade').value;
                 
                 if (!novoNome) {
-                    mostrarAlerta('Por favor, informe o nome do item!', 'error');
+                    mostrarAlerta('Informe o nome do item!', 'error');
+                    btn.disabled = false;
                     return;
                 }
                 
@@ -1469,10 +2505,14 @@
                     
                     atualizarDashboard();
                     atualizarListaItens();
+                    atualizarAnalytics();
                     mostrarAlerta('✅ Item atualizado com sucesso!', 'success');
                     fecharEditModal();
                 } catch (error) {
                     mostrarAlerta('Erro ao atualizar item!', 'error');
+                } finally {
+                    btn.disabled = false;
+                    if (btn.originalHTML) btn.innerHTML = btn.originalHTML;
                 }
             });
         }
@@ -1495,6 +2535,7 @@
                     
                     atualizarDashboard();
                     atualizarListaItens();
+                    atualizarAnalytics();
                     mostrarAlerta('🗑️ Item excluído com sucesso!', 'success');
                 } catch (error) {
                     mostrarAlerta('Erro ao excluir item!', 'error');
@@ -1504,11 +2545,17 @@
 
         async function cadastrarItem(e) {
             e.preventDefault();
+            const btn = document.getElementById('cadastrarButton');
+            salvarTextoOriginalBotao(btn);
+            desabilitarBotao(btn, 'Cadastrando...');
+            
             const nome = document.getElementById('cadastroNome').value.trim();
             const unidade = document.getElementById('cadastroUnidade').value;
 
             if (!nome) {
                 mostrarAlerta('Por favor, descreva o item!', 'error');
+                btn.disabled = false;
+                if (btn.originalHTML) btn.innerHTML = btn.originalHTML;
                 return;
             }
 
@@ -1526,74 +2573,124 @@
                 
                 atualizarListaItens();
                 document.getElementById('cadastroForm').reset();
-                mostrarAlerta(`✅ Item "${nome.substring(0, 50)}" cadastrado com sucesso!`, 'success');
+                mostrarAlerta(`✅ "${nome.substring(0, 40)}" cadastrado com sucesso!`, 'success');
             } catch (error) {
                 mostrarAlerta('Erro ao cadastrar item!', 'error');
+            } finally {
+                btn.disabled = false;
+                if (btn.originalHTML) btn.innerHTML = btn.originalHTML;
             }
         }
 
         function gerarRelatorio(tipo) {
             const dataAtual = new Date().toLocaleString('pt-BR');
             let htmlContent = `
-                <div class="print-report" style="padding: 40px; max-width: 1200px; margin: 0 auto;">
+                <div style="padding: 40px; max-width: 1200px; margin: 0 auto;">
                     <div style="text-align: center; margin-bottom: 30px;">
-                        <img src="logo.png" alt="Logo" style="max-width: 80px; margin-bottom: 10px;" onerror="this.style.display='none'">
-                        <h1 style="color: #1e3c72;">Sistema de Controle de Estoque Escolar</h1>
-                        <h2 style="color: #2a5298;">RELATÓRIO DE ESTOQUE</h2>
-                        <p>Data de emissão: ${dataAtual}</p>
+                        <h1 style="color: #1e293b;">Estoque Escolar</h1>
+                        <h2>RELATÓRIO DE ESTOQUE</h2>
+                        <p>${dataAtual}</p>
                     </div>
             `;
             
             if (tipo === 'geral') {
-                for (const [setor, items] of Object.entries(estoque)) {
-                    const nomeSetor = setor === 'almoxarifado' ? 'ALMOXARIFADO' : setor === 'secretaria' ? 'SECRETARIA' : 'ATELIÊ';
-                    htmlContent += `
-                        <div style="margin-bottom: 30px;">
-                            <h3>📦 ${nomeSetor}</h3>
-                            <table style="width: 100%; border-collapse: collapse;">
-                                <thead><tr style="background: #1e3c72; color: white;"><th>Item</th><th>Qtd</th><th>Unid</th> </tr></thead>
-                                <tbody>${items.map(item => `<tr><td style="padding: 8px; border: 1px solid #ddd;">${escapeHtml(item.nome)}</td><td style="text-align:center">${item.quantidade}</td><td style="text-align:center">${item.unidade}</td></tr>`).join('')}</tbody>
-                            </table>
-                        </div>
-                    `;
+                const setores = ['almoxarifado', 'secretaria', 'atelie', 'limpeza', 'cozinha'];
+                const nomes = ['ALMOXARIFADO', 'SECRETARIA', 'ATELIÊ', 'LIMPEZA', 'COZINHA'];
+                for (let i = 0; i < setores.length; i++) {
+                    const items = estoque[setores[i]];
+                    htmlContent += `<h3>📦 ${nomes[i]}</h3><table style="width:100%; border-collapse:collapse;"><tr style="background:#1e293b;color:white;"><th>Item</th><th>Qtd</th><th>Unid</th></table>${items.map(item => `<tr><td style="border:1px solid #ddd;padding:8px;">${escapeHtml(item.nome)}</td><td style="text-align:center">${item.quantidade}</td><td style="text-align:center">${item.unidade}</td></tr>`).join('')}</table><br>`;
                 }
             } else {
                 const items = estoque[tipo];
-                const nomeSetor = tipo === 'almoxarifado' ? 'ALMOXARIFADO' : tipo === 'secretaria' ? 'SECRETARIA' : 'ATELIÊ';
-                htmlContent += `
-                    <h3>📦 ${nomeSetor}</h3>
-                    <table style="width: 100%; border-collapse: collapse;">
-                        <thead><tr style="background: #1e3c72; color: white;"><th>Item</th><th>Qtd</th><th>Unid</th> </tr></thead>
-                        <tbody>${items.map(item => `<tr><td style="padding: 8px; border: 1px solid #ddd;">${escapeHtml(item.nome)}</td><td style="text-align:center">${item.quantidade}</td><td style="text-align:center">${item.unidade}</td></tr>`).join('')}</tbody>
-                    </table>
-                `;
+                let nomeSetor = tipo === 'almoxarifado' ? 'ALMOXARIFADO' : tipo === 'secretaria' ? 'SECRETARIA' : tipo === 'atelie' ? 'ATELIÊ' : tipo === 'limpeza' ? 'LIMPEZA' : 'COZINHA';
+                htmlContent += `<h3>📦 ${nomeSetor}</h3><table style="width:100%; border-collapse:collapse;"><tr style="background:#1e293b;color:white;"><th>Item</th><th>Qtd</th><th>Unid</th></tr>${items.map(item => `<tr><td style="border:1px solid #ddd;padding:8px;">${escapeHtml(item.nome)}</td><td style="text-align:center">${item.quantidade}</td><td style="text-align:center">${item.unidade}</td></tr>`).join('')}</table>`;
             }
             
-            htmlContent += `<div style="margin-top: 40px; text-align: center; color: #718096;">© 2026 Desenvolvido por João Lino • Todos os direitos reservados</div></div>`;
+            htmlContent += `<div style="margin-top:40px;text-align:center;">© 2026 João Lino</div></div>`;
             const printWindow = window.open('', '_blank');
-            printWindow.document.write(`<!DOCTYPE html><html><head><title>Relatório</title><style>body{font-family:Inter,sans-serif;padding:20px}</style></head><body>${htmlContent}<script>setTimeout(()=>window.print(),500);<\/script></body></html>`);
+            printWindow.document.write(`<!DOCTYPE html><html><head><title>Relatório</title><style>body{font-family:Arial,sans-serif;padding:20px}</style></head><body>${htmlContent}<script>setTimeout(()=>window.print(),500);<\/script></body></html>`);
             printWindow.document.close();
         }
 
         function gerarRelatorioHistorico() {
             const dataAtual = new Date().toLocaleString('pt-BR');
             let htmlContent = `
-                <div class="print-report" style="padding: 40px;">
+                <div style="padding: 40px;">
                     <div style="text-align:center">
-                        <img src="logo.png" alt="Logo" style="max-width: 80px; margin-bottom: 10px;" onerror="this.style.display='none'">
-                        <h1 style="color: #1e3c72;">Histórico de Movimentações</h1>
+                        <h1>Histórico de Movimentações</h1>
                         <p>${dataAtual}</p>
                     </div>
-                    <table style="width:100%;border-collapse:collapse; margin-top:20px">
-                        <thead><tr style="background:#1e3c72;color:white"><th>Data</th><th>Tipo</th><th>Setor</th><th>Item</th><th>Qtd</th><th>Motivo</th></tr></thead>
-                        <tbody>${historico.map(reg => `<tr><td style="padding:8px;border:1px solid #ddd;">${new Date(reg.created_at).toLocaleString('pt-BR')}</td><td>${reg.tipo === 'adicao' ? 'ADIÇÃO' : 'BAIXA'}</td><td>${reg.setor}</td><td>${escapeHtml(reg.item_nome)}</td><td style="text-align:center">${reg.quantidade} ${reg.unidade}</td><td>${reg.motivo || '-'}</td></tr>`).join('')}</tbody>
+                    <table style="width:100%;border-collapse:collapse;">
+                        <tr style="background:#1e293b;color:white"><th>Data</th><th>Tipo</th><th>Setor</th><th>Item</th><th>Qtd</th><th>Motivo</th></tr>
+                        ${historico.map(reg => `<tr><td style="border:1px solid #ddd;padding:8px;">${new Date(reg.created_at).toLocaleString('pt-BR')}</td><td>${reg.tipo === 'adicao' ? 'ADIÇÃO' : 'BAIXA'}</td><td>${reg.setor}</td><td>${escapeHtml(reg.item_nome)}</td><td style="text-align:center">${reg.quantidade} ${reg.unidade}</td><td>${reg.motivo || '-'}</td></tr>`).join('')}
                     </table>
-                    <div style="margin-top: 40px; text-align: center; color: #718096;">© 2026 Desenvolvido por João Lino • Todos os direitos reservados</div>
                 </div>
             `;
             const printWindow = window.open('', '_blank');
-            printWindow.document.write(`<!DOCTYPE html><html><head><title>Histórico</title><style>body{font-family:Inter,sans-serif;padding:20px}</style></head><body>${htmlContent}<script>setTimeout(()=>window.print(),500);<\/script></body></html>`);
+            printWindow.document.write(`<!DOCTYPE html><html><head><title>Histórico</title><style>body{font-family:Arial,sans-serif;padding:20px}</style></head><body>${htmlContent}<script>setTimeout(()=>window.print(),500);<\/script></body></html>`);
             printWindow.document.close();
+        }
+
+        function initNavigation() {
+            const desktopTabs = document.querySelectorAll('.tab-btn');
+            desktopTabs.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const tabId = this.getAttribute('data-tab');
+                    
+                    desktopTabs.forEach(t => t.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    document.querySelectorAll('.tab-content').forEach(content => {
+                        content.classList.remove('active-tab');
+                    });
+                    
+                    const selectedTab = document.getElementById(`${tabId}Tab`);
+                    if (selectedTab) {
+                        selectedTab.classList.add('active-tab');
+                    }
+                    
+                    document.querySelectorAll('.nav-item').forEach(nav => {
+                        nav.classList.remove('active');
+                        if (nav.getAttribute('data-mobile-tab') === tabId) {
+                            nav.classList.add('active');
+                        }
+                    });
+                    
+                    if (tabId === 'cadastro') atualizarListaItens();
+                    if (tabId === 'historico') atualizarHistorico();
+                    if (tabId === 'analytics') atualizarAnalytics();
+                });
+            });
+            
+            const mobileNavs = document.querySelectorAll('.nav-item');
+            mobileNavs.forEach(nav => {
+                nav.addEventListener('click', function() {
+                    const tabId = this.getAttribute('data-mobile-tab');
+                    
+                    mobileNavs.forEach(n => n.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    document.querySelectorAll('.tab-content').forEach(content => {
+                        content.classList.remove('active-tab');
+                    });
+                    
+                    const selectedTab = document.getElementById(`${tabId}Tab`);
+                    if (selectedTab) {
+                        selectedTab.classList.add('active-tab');
+                    }
+                    
+                    document.querySelectorAll('.tab-btn').forEach(btn => {
+                        btn.classList.remove('active');
+                        if (btn.getAttribute('data-tab') === tabId) {
+                            btn.classList.add('active');
+                        }
+                    });
+                    
+                    if (tabId === 'cadastro') atualizarListaItens();
+                    if (tabId === 'historico') atualizarHistorico();
+                    if (tabId === 'analytics') atualizarAnalytics();
+                });
+            });
         }
 
         function fecharModal() {
@@ -1604,41 +2701,24 @@
 
         function fecharEditModal() {
             document.getElementById('editModal').style.display = 'none';
-            currentEditItem = null;
         }
 
-        function showTab(tab) {
-            document.querySelectorAll('.tab-content').forEach(content => {
-                content.style.display = 'none';
-            });
-            document.getElementById(`${tab}Tab`).style.display = 'block';
-            
-            document.querySelectorAll('.tab-btn').forEach(btn => {
-                btn.classList.remove('active');
-            });
-            
-            const buttons = document.querySelectorAll('.tab-btn');
-            buttons.forEach(btn => {
-                if (btn.textContent.toLowerCase().includes(tab.toLowerCase())) {
-                    btn.classList.add('active');
-                }
-            });
-            
-            if (tab === 'cadastro') atualizarListaItens();
-            if (tab === 'historico') atualizarHistorico();
+        function fecharEditHistoricoModal() {
+            document.getElementById('editHistoricoModal').style.display = 'none';
+            currentHistoricoItem = null;
         }
 
-        // Event Listeners
         document.getElementById('loginForm').addEventListener('submit', login);
         document.getElementById('cadastroForm').addEventListener('submit', cadastrarItem);
         
         window.onclick = function(event) {
             if (event.target === document.getElementById('movementModal')) fecharModal();
             if (event.target === document.getElementById('editModal')) fecharEditModal();
+            if (event.target === document.getElementById('editHistoricoModal')) fecharEditHistoricoModal();
         };
 
-        // Inicializar - verificar login
         checkLogin();
+        initNavigation();
     </script>
 </body>
 </html>
